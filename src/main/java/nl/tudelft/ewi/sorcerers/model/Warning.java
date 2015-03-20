@@ -5,9 +5,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
 @IdClass(WarningId.class)
+@XmlRootElement
 public class Warning {
 	@Id private String repo;
 	@Id private String commit;

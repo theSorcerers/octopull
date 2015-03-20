@@ -40,6 +40,18 @@ public class GuiceConfig extends GuiceServletContextListener {
 				persistanceProperties.put("javax.persistence.jdbc.user", postgresUser);
 				persistanceProperties.put("hibernate.hbm2ddl.auto", "update");
 				persistanceProperties.put("hibernate.show_sql", "true");
+				persistanceProperties.put("hibernate.c3p0.acquireRetryAttempts", 0);
+				persistanceProperties.put("hibernate.c3p0.acquireRetryDelay",
+						3000);
+				persistanceProperties.put(
+						"hibernate.c3p0.breakAfterAcquireFailure", false);
+				persistanceProperties.put("hibernate.c3p0.maxConnectionAge",
+						6000);
+				persistanceProperties.put("hibernate.c3p0.maxIdleTime", 6000);
+				persistanceProperties.put(
+						"hibernate.c3p0.maxIdleTimeExcessConnections", 1800);
+				persistanceProperties.put("hibernate.c3p0.idleConnectionTestPeriod", 3600);
+
 								
 				install(new JpaPersistModule("octopull-jpa").properties(persistanceProperties));
 				bind(WarningRepository.class).to(JPAWarningRepository.class);
