@@ -49,8 +49,8 @@ public class GuiceConfig extends GuiceServletContextListener {
 				params.put("com.sun.jersey.config.property.packages", "nl.tudelft.ewi.sorcerers.resources");
 				params.put("com.sun.jersey.api.json.POJOMappingFeature", "true");
 
-				// Route all requests through GuiceContainer
 				filter("/*").through(PersistFilter.class);
+				// Route all requests through GuiceContainer
 				serve("/*").with(GuiceContainer.class, params);
 			}
 		});

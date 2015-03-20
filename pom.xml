@@ -119,7 +119,7 @@
 		</plugins>
 	</build>
 	<properties>
-		<jersey.version>1.7</jersey.version>
+		<jersey.version>1.18.1</jersey.version>
 		<guice.version>3.0</guice.version>
 		<jetty.version>7.4.2.v20110526</jetty.version>
 		<hibernate.version>4.3.8.Final</hibernate.version>
