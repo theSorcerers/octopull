@@ -18,12 +18,16 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+
 public class AppConfig extends ResourceConfig {
 	@Inject
 	public AppConfig(ServiceLocator serviceLocator) {
 		packages("nl.tudelft.ewi.sorcerers.resources");
 
 		System.out.println("Registering injectables...");
+		
+		register(JacksonJaxbJsonProvider.class);
 		
 		register(new AbstractBinder() {
 			@Override
