@@ -9,6 +9,7 @@ import nl.tudelft.ewi.sorcerers.github.LineMapService;
 import nl.tudelft.ewi.sorcerers.infrastructure.JPAWarningRepository;
 import nl.tudelft.ewi.sorcerers.model.WarningRepository;
 import nl.tudelft.ewi.sorcerers.model.WarningService;
+import nl.tudelft.ewi.sorcerers.servlet.CORSResponseFilter;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
 
 import org.eclipse.egit.github.core.service.CommitService;
@@ -28,6 +29,7 @@ public class AppConfig extends ResourceConfig {
 		System.out.println("Registering injectables...");
 		
 		register(JacksonJaxbJsonProvider.class);
+		register(CORSResponseFilter.class);
 		
 		register(new AbstractBinder() {
 			@Override
