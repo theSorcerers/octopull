@@ -23,7 +23,6 @@ public class TransactionInterceptionService implements InterceptionService {
 
 	@Inject
 	public TransactionInterceptionService(Provider<EntityManager> em) {
-		System.out.println("CREATED "  + em);
 		this.entityManager = em;
 	}
 	
