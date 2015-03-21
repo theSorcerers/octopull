@@ -1,4 +1,4 @@
 language: java
 notifications:
   webhooks:
-    - https://octopull.rmhartog.me/api/travis/webhook
+    - http://octopull.rmhartog.me/api/travis/webhook
