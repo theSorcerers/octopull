@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -55,6 +56,7 @@ public class TravisResource {
 	}
 	
 	@XmlRootElement
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	private static class TravisPayload {
 		public String commit;
 	}
