@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -47,6 +48,7 @@ public class TravisResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Path("/webhook")
+	@Transactional
 	public Response webhook(@FormParam("payload") String payload) {
 		// TODO temporary
 		ObjectMapper mapper = new ObjectMapper();
