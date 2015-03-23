@@ -1,7 +1,11 @@
 package nl.tudelft.ewi.sorcerers.resources;
 
+import static java.util.regex.Pattern.MULTILINE;
+
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -57,7 +61,14 @@ public class TravisResource {
 				try {
 					String log = this.travisService.getLogFromJobId(job.id);
 					
-					
+					Pattern pattern = Pattern.compile("^\\[ERROR\\] (.*)\\[([0-9]+)(?::([0-9]+))?\\] \\((.*)\\) ([a-zA-Z]+):(.*)$", MULTILINE);
+					Matcher matcher = pattern.matcher(log);
+					while (matcher.find()) {
+						System.out.println(matcher.group(0));
+						for (int i = 1; i <= matcher.groupCount(); i++) {
+							System.out.println(String.format("%d:\t%s", matcher.group(i)));
+						}
+					}
 				} catch (Exception e) {
 					System.out.println("failed to get log");
 					e.printStackTrace();
