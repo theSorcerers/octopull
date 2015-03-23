@@ -1,7 +1,5 @@
 package nl.tudelft.ewi.sorcerers;
 
-import static org.glassfish.hk2.utilities.BuilderHelper.createConstantDescriptor;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
@@ -17,7 +15,6 @@ import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
 import org.eclipse.egit.github.core.service.CommitService;
 import org.glassfish.hk2.api.InterceptionService;
 import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -33,6 +30,20 @@ public class AppConfig extends ResourceConfig {
 		
 		register(JacksonJaxbJsonProvider.class);
 		register(CORSResponseFilter.class);
+		
+		final String githubToken = System.getenv("GITHUB_TOKEN");
+		if (githubToken == null) {
+			throw new IllegalArgumentException("GITHUB_TOKEN is missing.");
+		}
+		
+		register(new AbstractBinder() {
+			@Override
+			protected void configure() {	
+				bind(githubToken).named("env:GITHUB_TOKEN").to(String.class);
+				bindAsContract(TravisService.class);
+			}
+		});
+				
 		
 		final String postgresUrl = System.getenv("POSTGRES_URL");
 		if (postgresUrl == null) {
