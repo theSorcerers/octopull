@@ -48,12 +48,20 @@ public class TravisService {
 		SSLContext sslContext = null;
 		try {
 			sslContext = SSLContext.getInstance("SSL");
-		    sslContext.init(null, new TrustManager[]{new X509TrustManager() {
-		        public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
-		        public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
-		        public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+			sslContext.init(null, new TrustManager[] { new X509TrustManager() {
+				public void checkClientTrusted(X509Certificate[] arg0,
+						String arg1) throws CertificateException {
+				}
 
-		    }}, new java.security.SecureRandom());
+				public void checkServerTrusted(X509Certificate[] arg0,
+						String arg1) throws CertificateException {
+				}
+
+				public X509Certificate[] getAcceptedIssuers() {
+					return new X509Certificate[0];
+				}
+
+			} }, new java.security.SecureRandom());
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -62,65 +70,73 @@ public class TravisService {
 			e.printStackTrace();
 		}
 		HostnameVerifier hostnameVerifier = new HostnameVerifier() {
-
 			@Override
 			public boolean verify(String hostname, SSLSession session) {
 				// TODO Auto-generated method stub
 				return true;
 			}
-			
 		};
-		return ClientBuilder.newBuilder().sslContext(sslContext).hostnameVerifier(hostnameVerifier).build();
+		return ClientBuilder.newBuilder().sslContext(sslContext)
+				.hostnameVerifier(hostnameVerifier).build();
 	}
 
 	public String getLogFromJobId(String id) throws IOException {
-		
-		System.out.println(String.format("Requesting log %s", id));
-		String authRequest = String.format("{\"github_token\":\"%s\"}", this.githubToken);
+		AccessTokenHolder accessTokenHolder = authenticate();
+
+		Invocation logInvocation = this.client
+				.target("https://api.travis-ci.com/jobs/{jobId}/log.txt")
+				.resolveTemplate("jobId", id)
+				.queryParam("access_token", accessTokenHolder.access_token)
+				.request(MediaType.TEXT_PLAIN)
+				.header("User-Agent", "Octopull/1.0.0").buildGet();
+
+		Response logResponse = logInvocation.invoke();
+		if (logResponse.getStatus() == 200) {
+			return logResponse.readEntity(String.class);
+		} else {
+			// TODO fix this
+			throw new RuntimeException(String.format(
+					"Failed to retrieve log from Travis CI, got status %d",
+					logResponse.getStatus()));
+		}
+	}
+
+	private AccessTokenHolder authenticate() throws IOException {
+		String authRequest = String.format("{\"github_token\":\"%s\"}",
+				this.githubToken);
 		Invocation authInvocation = this.client
 				.target("https://api.travis-ci.com/auth/github")
 				.request("application/vnd.travis-ci.2+json")
 				.header("User-Agent", "Octopull/1.0.0")
 				.buildPost(json(authRequest));
-		
+
 		Response authResponse = authInvocation.invoke();
-		if (authResponse.getStatus() == 200) {
-			// TODO temporary
-			ObjectMapper mapper = new ObjectMapper();
-			AnnotationIntrospector introspector = new JacksonAnnotationIntrospector();
-			// make deserializer use JAXB annotations (only)
-			mapper.getDeserializationConfig().withAppendedAnnotationIntrospector(introspector);
-			// make serializer use JAXB annotations (only)
-			mapper.getSerializationConfig().withAppendedAnnotationIntrospector(introspector);
-			
-			AccessTokenHolder accessTokenHolder;
-			try {
-				accessTokenHolder = mapper.readValue((InputStream) authResponse.readEntity(InputStream.class), AccessTokenHolder.class);
-			} catch (JsonParseException e) {
-				// TODO fix this
-				throw new RuntimeException("Could not parse Travis CI response.", e);
-			} catch (JsonMappingException e) {
-				// TODO fix this
-				throw new RuntimeException("Could not parse Travis CI response.", e);
-			}
-			
-			Invocation logInvocation = this.client
-					.target("https://api.travis-ci.com/jobs/{jobId}/log.txt")
-					.resolveTemplate("jobId", id).queryParam("access_token", accessTokenHolder.access_token)
-					.request(MediaType.TEXT_PLAIN)
-					.header("User-Agent", "Octopull/1.0.0")
-					.buildGet();
-			
-			Response logResponse = logInvocation.invoke();
-			if (logResponse.getStatus() == 200) {
-				return logResponse.readEntity(String.class);
-			} else {
-				// TODO fix this
-				throw new RuntimeException(String.format("Failed to retrieve log from Travis CI, got status %d", logResponse.getStatus()));
-			}
-		} else {
+		if (authResponse.getStatus() != 200) {
 			// TODO fix this
 			throw new RuntimeException("Could not authenticate to Travis CI.");
 		}
+		// TODO temporary
+		ObjectMapper mapper = new ObjectMapper();
+		AnnotationIntrospector introspector = new JacksonAnnotationIntrospector();
+		// make deserializer use JAXB annotations (only)
+		mapper.getDeserializationConfig().withAppendedAnnotationIntrospector(
+				introspector);
+		// make serializer use JAXB annotations (only)
+		mapper.getSerializationConfig().withAppendedAnnotationIntrospector(
+				introspector);
+
+		AccessTokenHolder accessTokenHolder;
+		try {
+			accessTokenHolder = mapper.readValue(
+					(InputStream) authResponse.readEntity(InputStream.class),
+					AccessTokenHolder.class);
+		} catch (JsonParseException e) {
+			// TODO fix this
+			throw new RuntimeException("Could not parse Travis CI response.", e);
+		} catch (JsonMappingException e) {
+			// TODO fix this
+			throw new RuntimeException("Could not parse Travis CI response.", e);
+		}
+		return accessTokenHolder;
 	}
 }

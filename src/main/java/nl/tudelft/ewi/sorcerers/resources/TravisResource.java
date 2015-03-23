@@ -55,7 +55,9 @@ public class TravisResource {
 			for (TravisJobPayload job : travisPayload.matrix) {
 				System.out.println(job.id);
 				try {
-					System.out.println(this.travisService.getLogFromJobId(job.id));
+					String log = this.travisService.getLogFromJobId(job.id);
+					
+					
 				} catch (Exception e) {
 					System.out.println("failed to get log");
 					e.printStackTrace();
