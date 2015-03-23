@@ -21,6 +21,12 @@ public class JPAWarningRepository implements WarningRepository {
 	}
 
 	@Override
+	public Warning add(Warning warning) {
+		entityManager.persist(warning);
+		return warning;
+	}
+	
+	@Override
 	public List<Warning> getWarningsForCommit(String repo, String commit) {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Warning> cq = cb.createQuery(Warning.class);

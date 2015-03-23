@@ -11,9 +11,14 @@ public class WarningService {
 	public WarningService(WarningRepository warningRepository) {
 		this.warningRepository = warningRepository;
 	}
-	
+
 	public List<Warning> getWarningsForCommit(String repo, String commit) {
 		return this.warningRepository.getWarningsForCommit(repo, commit);
 	}
-	
+
+	public Warning addWarning(String repo, String commit, String path, int line,
+			String message) {
+		return this.warningRepository.add(new Warning(repo, commit, path, line, message));
+	}
+
 }

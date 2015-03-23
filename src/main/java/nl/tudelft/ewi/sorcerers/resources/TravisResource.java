@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import nl.tudelft.ewi.sorcerers.TravisService;
+import nl.tudelft.ewi.sorcerers.model.WarningService;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -29,10 +30,12 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 @Path("/travis")
 public class TravisResource {
 	private TravisService travisService;
+	private WarningService warningService;
 
 	@Inject
-	public TravisResource(TravisService travisService) {
+	public TravisResource(TravisService travisService, WarningService warningService) {
 		this.travisService = travisService;
+		this.warningService = warningService;
 	}
 	
 	@GET
@@ -66,12 +69,12 @@ public class TravisResource {
 					e.printStackTrace();
 				}
 				if (log != null) {
-					Pattern pattern = Pattern.compile("^\\[ERROR\\] (.*)\\[([0-9]+)(?::([0-9]+))?\\] \\((.*)\\) ([a-zA-Z]+):(.*)$", MULTILINE);
+					Pattern pattern = Pattern.compile("^\\[(WARNING|ERROR|INFO)\\] (.*)\\[([0-9]+)(?::([0-9]+))?\\] \\((.*)\\) ([a-zA-Z]+):\\s+(.*)$", MULTILINE);
 					Matcher matcher = pattern.matcher(log);
 					while (matcher.find()) {
-						System.out.println(matcher.group(0));
-						for (int i = 1; i <= matcher.groupCount(); i++) {
-							System.out.println(String.format("%d:\t%s", i, matcher.group(i)));
+						if (matcher.groupCount() == 7) {
+							String repo = String.format("%s/%s", travisPayload.repository.owner_name, travisPayload.repository.name);
+							this.warningService.addWarning(repo, travisPayload.commit, matcher.group(2), Integer.valueOf(matcher.group(3)), matcher.group(7));
 						}
 					}
 				}
@@ -89,7 +92,12 @@ public class TravisResource {
 		return Response.ok().build();
 	}
 	
-	@XmlRootElement
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	private static class TravisRepository {
+		public String name;
+		public String owner_name;
+	}
+	
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	private static class TravisJobPayload {
 		public String id;
@@ -99,6 +107,7 @@ public class TravisResource {
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	private static class TravisPayload {
 		public String commit;
+		public TravisRepository repository;
 		public List<TravisJobPayload> matrix;
 	}
 }
