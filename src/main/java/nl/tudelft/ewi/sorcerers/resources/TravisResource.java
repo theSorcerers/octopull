@@ -77,7 +77,7 @@ public class TravisResource {
 						if (matcher.groupCount() == 7) {
 							String repo = String.format("%s/%s", travisPayload.repository.owner_name, travisPayload.repository.name);
 							System.out.println(String.format("%s %s %s %s", repo, travisPayload.commit, matcher.group(2), matcher.group(3)));
-							this.warningService.addWarning(repo, travisPayload.commit, matcher.group(2), Integer.valueOf(matcher.group(3)), matcher.group(7));
+							this.warningService.addWarningIfNew(repo, travisPayload.commit, matcher.group(2), Integer.valueOf(matcher.group(3)), matcher.group(7));
 						}
 					}
 				}

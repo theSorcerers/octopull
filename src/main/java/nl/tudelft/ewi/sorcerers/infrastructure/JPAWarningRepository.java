@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -25,6 +26,30 @@ public class JPAWarningRepository implements WarningRepository {
 		entityManager.persist(warning);
 		System.out.println(warning);
 		return warning;
+	}
+	
+	@Override
+	public Warning find(String repo, String commit, String path, int line,
+			String message) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Warning> cq = cb.createQuery(Warning.class);
+		
+		Root<Warning> warning = cq.from(Warning.class);
+		cq.where(cb.and(
+					cb.equal(warning.get("repo"), repo),
+					cb.equal(warning.get("commit"), commit),
+					cb.equal(warning.get("path"), path),
+					cb.equal(warning.get("line"), line),
+					cb.equal(warning.get("message"), message)
+				)
+		);
+		
+		TypedQuery<Warning> query = entityManager.createQuery(cq);
+		try {
+			return query.getSingleResult();
+		} catch(NoResultException e) {
+			return null;
+		}
 	}
 	
 	@Override

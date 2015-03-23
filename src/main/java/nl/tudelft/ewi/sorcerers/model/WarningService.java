@@ -16,9 +16,13 @@ public class WarningService {
 		return this.warningRepository.getWarningsForCommit(repo, commit);
 	}
 
-	public Warning addWarning(String repo, String commit, String path, int line,
+	public Warning addWarningIfNew(String repo, String commit, String path, int line,
 			String message) {
-		return this.warningRepository.add(new Warning(repo, commit, path, line, message));
+		Warning warning = this.warningRepository.find(repo, commit, path, line, message);
+		if (warning == null)
+			return this.warningRepository.add(new Warning(repo, commit, path, line, message));
+		else
+			return warning;
 	}
 
 }
