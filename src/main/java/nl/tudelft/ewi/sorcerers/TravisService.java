@@ -40,6 +40,7 @@ public class TravisService {
 	}
 
 	public String getLogFromJobId(String id) throws IOException {
+		System.out.println(String.format("Requesting log %s", id));
 		String authRequest = String.format("{\"github_token\":\"%s\"}", this.githubToken);
 		Invocation authInvocation = this.client
 				.target("https://api.travis-ci.com/auth/github")

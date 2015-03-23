@@ -51,6 +51,7 @@ public class TravisResource {
 		try {
 			TravisPayload travisPayload = mapper.readValue(payload, TravisPayload.class);
 			System.out.println(travisPayload.commit);
+			System.out.println("Looping the matrix");
 			for (TravisJobPayload job : travisPayload.matrix) {
 				System.out.println(job.id);
 				try {
