@@ -4,9 +4,11 @@ import static javax.ws.rs.client.Entity.json;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
@@ -36,10 +38,18 @@ public class TravisService {
 	}
 
 	private Client createClient() {
-		return ClientBuilder.newClient();
+		SSLContext sslContext = null;
+		try {
+			sslContext = SSLContext.getDefault();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ClientBuilder.newBuilder().sslContext(sslContext).build();
 	}
 
 	public String getLogFromJobId(String id) throws IOException {
+		
 		System.out.println(String.format("Requesting log %s", id));
 		String authRequest = String.format("{\"github_token\":\"%s\"}", this.githubToken);
 		Invocation authInvocation = this.client
