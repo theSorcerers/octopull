@@ -23,6 +23,7 @@ public class JPAWarningRepository implements WarningRepository {
 	@Override
 	public Warning add(Warning warning) {
 		entityManager.persist(warning);
+		System.out.println(warning);
 		return warning;
 	}
 	
