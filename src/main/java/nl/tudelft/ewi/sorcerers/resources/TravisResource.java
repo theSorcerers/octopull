@@ -58,20 +58,22 @@ public class TravisResource {
 			System.out.println("Looping the matrix");
 			for (TravisJobPayload job : travisPayload.matrix) {
 				System.out.println(job.id);
+				String log = null;
 				try {
-					String log = this.travisService.getLogFromJobId(job.id);
-					
+					log = this.travisService.getLogFromJobId(job.id);
+				} catch (Exception e) {
+					System.out.println("failed to get log");
+					e.printStackTrace();
+				}
+				if (log != null) {
 					Pattern pattern = Pattern.compile("^\\[ERROR\\] (.*)\\[([0-9]+)(?::([0-9]+))?\\] \\((.*)\\) ([a-zA-Z]+):(.*)$", MULTILINE);
 					Matcher matcher = pattern.matcher(log);
 					while (matcher.find()) {
 						System.out.println(matcher.group(0));
 						for (int i = 1; i <= matcher.groupCount(); i++) {
-							System.out.println(String.format("%d:\t%s", matcher.group(i)));
+							System.out.println(String.format("%d:\t%s", i, matcher.group(i)));
 						}
 					}
-				} catch (Exception e) {
-					System.out.println("failed to get log");
-					e.printStackTrace();
 				}
 			}
 		} catch (JsonParseException e) {
