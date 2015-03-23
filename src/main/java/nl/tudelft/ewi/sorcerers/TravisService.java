@@ -106,7 +106,7 @@ public class TravisService {
 			
 			Invocation logInvocation = this.client
 					.target("https://api.travis-ci.com/jobs/{jobId}/log.txt")
-					.matrixParam("jobId", id).queryParam("access_token", accessTokenHolder.access_token)
+					.resolveTemplate("jobId", id).queryParam("access_token", accessTokenHolder.access_token)
 					.request(MediaType.TEXT_PLAIN)
 					.header("User-Agent", "Octopull/1.0.0")
 					.buildGet();
