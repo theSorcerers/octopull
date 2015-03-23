@@ -4,11 +4,18 @@ import static javax.ws.rs.client.Entity.json;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
@@ -40,12 +47,30 @@ public class TravisService {
 	private Client createClient() {
 		SSLContext sslContext = null;
 		try {
-			sslContext = SSLContext.getDefault();
+			sslContext = SSLContext.getInstance("SSL");
+		    sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+		        public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+		        public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+		        public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+
+		    }}, new java.security.SecureRandom());
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (KeyManagementException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return ClientBuilder.newBuilder().sslContext(sslContext).build();
+		HostnameVerifier hostnameVerifier = new HostnameVerifier() {
+
+			@Override
+			public boolean verify(String hostname, SSLSession session) {
+				// TODO Auto-generated method stub
+				return true;
+			}
+			
+		};
+		return ClientBuilder.newBuilder().sslContext(sslContext).hostnameVerifier(hostnameVerifier).build();
 	}
 
 	public String getLogFromJobId(String id) throws IOException {
