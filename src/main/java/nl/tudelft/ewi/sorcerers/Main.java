@@ -2,6 +2,8 @@ package nl.tudelft.ewi.sorcerers;
 
 import static org.glassfish.jersey.CommonProperties.METAINF_SERVICES_LOOKUP_DISABLE;
 
+import javax.ws.rs.core.SecurityContext;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -15,7 +17,7 @@ public class Main {
 
 		// Create the server
 		Server server = new Server(8080);
-
+		
 		// Create a servlet context and add the jersey servlet
 		ServletContextHandler sch = new ServletContextHandler(server, "/");
 

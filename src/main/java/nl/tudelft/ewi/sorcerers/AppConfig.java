@@ -9,7 +9,9 @@ import nl.tudelft.ewi.sorcerers.github.LineMapService;
 import nl.tudelft.ewi.sorcerers.infrastructure.JPAWarningRepository;
 import nl.tudelft.ewi.sorcerers.model.WarningRepository;
 import nl.tudelft.ewi.sorcerers.model.WarningService;
+import nl.tudelft.ewi.sorcerers.servlet.BaseURIFilter;
 import nl.tudelft.ewi.sorcerers.servlet.CORSResponseFilter;
+import nl.tudelft.ewi.sorcerers.servlet.GitHubOAuthFilter;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
 
 import org.eclipse.egit.github.core.service.CommitService;
@@ -28,18 +30,32 @@ public class AppConfig extends ResourceConfig {
 
 		System.out.println("Registering injectables...");
 		
+		register(BaseURIFilter.class);
 		register(JacksonJaxbJsonProvider.class);
 		register(CORSResponseFilter.class);
+		register(GitHubOAuthFilter.class);
 		
 		final String githubToken = System.getenv("GITHUB_TOKEN");
 		if (githubToken == null) {
 			throw new IllegalArgumentException("GITHUB_TOKEN is missing.");
 		}
 		
+		final String githubClientId = System.getenv("GITHUB_CLIENT_ID");
+		if (githubClientId == null) {
+			throw new IllegalArgumentException("GITHUB_CLIENT_ID is missing.");
+		}
+		
+		final String githubClientSecret = System.getenv("GITHUB_CLIENT_SECRET");
+		if (githubClientSecret == null) {
+			throw new IllegalArgumentException("GITHUB_CLIENT_SECRET is missing.");
+		}
+		
 		register(new AbstractBinder() {
 			@Override
 			protected void configure() {	
 				bind(githubToken).named("env:GITHUB_TOKEN").to(String.class);
+				bind(githubClientId).named("env:GITHUB_CLIENT_ID").to(String.class);
+				bind(githubClientSecret).named("env:GITHUB_CLIENT_SECRET").to(String.class);
 				bindAsContract(TravisService.class);
 			}
 		});
