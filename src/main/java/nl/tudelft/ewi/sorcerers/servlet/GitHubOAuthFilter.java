@@ -69,8 +69,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 	}
 
 	private String getGithubToken(ContainerRequestContext requestContext) {
-		Cookie githubTokenCookie = requestContext.getCookies().get(
-				"github_token");
+		Cookie githubTokenCookie = requestContext.getCookies().get("github_token");
 		if (githubTokenCookie == null) {
 			return null;
 		} else {
@@ -138,6 +137,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 				.getQueryParameters();
 		String path = uriInfo.getPath();
 		
+		System.out.println(path);
 		if ("oauth/login/".equals(path)) {
 			String returnAddress = queryParameters.getFirst("return_to");
 			if (returnAddress == null) {
