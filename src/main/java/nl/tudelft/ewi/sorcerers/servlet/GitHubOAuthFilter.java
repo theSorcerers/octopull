@@ -141,6 +141,9 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 		if ("oauth/login/".equals(path)) {
 			String returnAddress = queryParameters.getFirst("return_to");
 			if (returnAddress == null) {
+				returnAddress = requestContext.getHeaderString("Referer");
+			}
+			if (returnAddress == null) {
 				returnAddress = "https://github.com/";
 			}
 			redirectToLogin(requestContext, returnAddress);
@@ -330,9 +333,13 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 
 		@Override
 		public boolean isUserInRole(String role) {
-			String[] roleParts = role.split(":");
+			return "user".equals(role);
+		}
+			
+		public boolean hasScope(String scope) {
+			String[] roleParts = scope.split(":");
 			return this.scopes.contains(roleParts[0])
-					|| this.scopes.contains(role);
+					|| this.scopes.contains(scope);
 		}
 
 		@Override
