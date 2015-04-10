@@ -20,6 +20,7 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
@@ -34,6 +35,8 @@ public class AppConfig extends ResourceConfig {
 		register(JacksonJaxbJsonProvider.class);
 		register(CORSResponseFilter.class);
 		register(GitHubOAuthFilter.class);
+		register(RolesAllowedDynamicFeature.class);
+		register(ForbiddenExceptionMapper.class);
 		
 		final String githubToken = System.getenv("GITHUB_TOKEN");
 		if (githubToken == null) {
