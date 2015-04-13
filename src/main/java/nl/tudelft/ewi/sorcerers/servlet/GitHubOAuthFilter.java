@@ -137,7 +137,6 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 				.getQueryParameters();
 		String path = uriInfo.getPath();
 		
-		System.out.println(path);
 		if ("oauth/login/".equals(path)) {
 			String returnAddress = queryParameters.getFirst("return_to");
 			if (returnAddress == null) {
@@ -178,7 +177,6 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 				String username = null;
 				if (verifyToken.user != null) {
 					username = verifyToken.user.login;
-					System.out.println("Logged in as " + username);
 				}
 				List<String> scopes = Arrays.asList(new String[0]);
 				if (verifyToken.scopes != null) {
@@ -304,7 +302,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 		public UserPayload user;
 	}
 
-	private static class GitHubSecurityContext implements SecurityContext {
+	public static class GitHubSecurityContext implements SecurityContext {
 		private String username;
 		private ArrayList<String> scopes;
 		private boolean secure;

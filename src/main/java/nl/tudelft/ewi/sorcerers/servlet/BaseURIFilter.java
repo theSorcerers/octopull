@@ -33,8 +33,5 @@ public class BaseURIFilter implements ContainerRequestFilter {
 		}
 		URI baseURI = baseBuilder.build();
 		requestContext.setRequestUri(baseURI, baseURI.resolve(requestUri));
-		System.out.println(requestContext.getUriInfo().getBaseUri().toString());
-		System.out.println(requestContext.getUriInfo().getRequestUri().toString());
-		System.out.println(requestContext.getUriInfo().getPath());
 	}
 }
