@@ -23,9 +23,14 @@ public class ForbiddenExceptionMapper implements ExceptionMapper<ForbiddenExcept
 		URI loginLink = uriInfo.getBaseUriBuilder().path("/oauth/login/").build();
 		Message message = new Message("warning", "Authentication error", "You are not logged in.");
 		message.addAction(loginLink.toString(), "Log in");
+		
 		return Response.status(Status.FORBIDDEN)
 				.entity(message)
-				.type("application/vnd.octopull.message+json").build();
+				.type("application/vnd.octopull.message+json")
+				.header("Cache-Control", "no-cache, no-store, must-revalidate")
+				.header("Pragma", "no-cache")
+				.header("Expires", 0)
+				.build();
 	}
 	
 	@JsonSerialize
