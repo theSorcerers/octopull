@@ -104,6 +104,7 @@
 				<configuration>
 					<failOnViolation>false</failOnViolation>
 					<consoleOutput>true</consoleOutput>
+					<configLocation>checkstyle.xml</configLocation>
 				</configuration>
 			</plugin>
 			<plugin>
