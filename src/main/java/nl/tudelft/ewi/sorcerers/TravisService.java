@@ -80,7 +80,7 @@ public class TravisService {
 				.hostnameVerifier(hostnameVerifier).build();
 	}
 
-	public String getLogFromJobId(String id) throws IOException {
+	public InputStream getLogFromJobId(String id) throws IOException {
 		AccessTokenHolder accessTokenHolder = authenticate();
 
 		Invocation logInvocation = this.client
@@ -92,7 +92,7 @@ public class TravisService {
 
 		Response logResponse = logInvocation.invoke();
 		if (logResponse.getStatus() == 200) {
-			return logResponse.readEntity(String.class);
+			return logResponse.readEntity(InputStream.class);
 		} else {
 			// TODO fix this
 			throw new RuntimeException(String.format(

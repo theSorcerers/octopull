@@ -1,8 +1,12 @@
 package nl.tudelft.ewi.sorcerers.resources;
 
-import static java.util.regex.Pattern.MULTILINE;
-
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,10 +20,14 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.annotation.XmlRootElement;
 
+import nl.tudelft.ewi.sorcerers.LogParser;
 import nl.tudelft.ewi.sorcerers.TravisService;
+import nl.tudelft.ewi.sorcerers.model.Warning;
 import nl.tudelft.ewi.sorcerers.model.WarningService;
+import nl.tudelft.ewi.sorcerers.util.ReadUntilReader;
+
+import org.glassfish.hk2.api.IterableProvider;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -32,17 +40,19 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 public class TravisResource {
 	private TravisService travisService;
 	private WarningService warningService;
-
+	private IterableProvider<LogParser> logParsers;
+	
 	@Inject
-	public TravisResource(TravisService travisService, WarningService warningService) {
+	public TravisResource(TravisService travisService, WarningService warningService, IterableProvider<LogParser> logParsers) {
 		this.travisService = travisService;
 		this.warningService = warningService;
+		this.logParsers = logParsers;
 	}
 	
 	@GET
 	@Path("/webhook")
 	public Response test() {
-		return webhook("{\"commit\": \"123\" }");
+		return webhook("{\"commit\": \"123\", \"repository\": { \"owner_name\": \"rmhartog\", \"name\": \"octopull\" }, \"matrix\": [{ \"id\": 16181256 }] }");
 	}
 	
 	@POST
@@ -63,22 +73,18 @@ public class TravisResource {
 			System.out.println("Looping the matrix");
 			for (TravisJobPayload job : travisPayload.matrix) {
 				System.out.println(job.id);
-				String log = null;
+				InputStream log = null;
 				try {
 					log = this.travisService.getLogFromJobId(job.id);
+					if (log != null) {
+						parseLog(travisPayload, log);
+					}
 				} catch (Exception e) {
 					System.out.println("failed to get log");
 					e.printStackTrace();
-				}
-				if (log != null) {
-					Pattern pattern = Pattern.compile("^\\[(WARNING|ERROR|INFO)\\] (.*)\\[([0-9]+)(?::([0-9]+))?\\] \\((.*)\\) ([a-zA-Z]+):\\s+(.*)$", MULTILINE);
-					Matcher matcher = pattern.matcher(log);
-					while (matcher.find()) {
-						if (matcher.groupCount() == 7) {
-							String repo = String.format("%s/%s", travisPayload.repository.owner_name, travisPayload.repository.name);
-							System.out.println(String.format("%s %s %s %s", repo, travisPayload.commit, matcher.group(2), matcher.group(3)));
-							this.warningService.addWarningIfNew(repo, travisPayload.commit, matcher.group(2), Integer.valueOf(matcher.group(3)), matcher.group(7));
-						}
+				} finally {
+					if (log != null) {
+						log.close();
 					}
 				}
 			}
@@ -94,6 +100,48 @@ public class TravisResource {
 		}
 		return Response.ok().build();
 	}
+
+	private void parseLog(TravisPayload travisPayload, InputStream log) {
+		String repo = String.format("%s/%s", travisPayload.repository.owner_name, travisPayload.repository.name);
+		String commit = travisPayload.commit;
+		
+		BufferedInputStream logStream = new BufferedInputStream(log);
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new InputStreamReader(logStream, StandardCharsets.UTF_8));
+
+			Pattern resultPattern = Pattern.compile("^== ([_A-Z]+)_RESULT ==$");
+			String line;
+			while ((line = reader.readLine()) != null){
+				Matcher matcher = resultPattern.matcher(line);
+				if (matcher.matches()) {
+					String tool = matcher.group(1);
+					Reader r = new ReadUntilReader(reader, ("== END_" + tool + "_RESULT ==").toCharArray());
+					LogParser parser = logParsers.named(tool.toLowerCase()).get();
+					if (parser != null) {
+						System.out.println("parser: " + tool);
+						for (Warning warning : parser.parse(r)) {
+							String path = warning.getPath().replaceAll("^/home/travis/build/" + repo + "/", "");
+							this.warningService.addWarningIfNew(repo, commit, path, warning.getLine(), warning.getMessage());
+						}
+					}
+					r.close();
+				}
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	private static class TravisRepository {
@@ -106,7 +154,6 @@ public class TravisResource {
 		public String id;
 	}
 	
-	@XmlRootElement
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	private static class TravisPayload {
 		public String commit;

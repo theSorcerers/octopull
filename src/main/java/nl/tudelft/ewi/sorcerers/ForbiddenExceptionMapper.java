@@ -19,9 +19,8 @@ public class ForbiddenExceptionMapper implements ExceptionMapper<ForbiddenExcept
 	
 	@Override
 	public Response toResponse(ForbiddenException exception) {
-		// TODO add proper entity with login link
 		URI loginLink = uriInfo.getBaseUriBuilder().path("/oauth/login/").build();
-		Message message = new Message("warning", "Authentication error", "You are not logged in.");
+		Message message = new Message("warning", "Authentication error", "You are not logged in to Octopull.");
 		message.addAction(loginLink.toString(), "Log in");
 		
 		return Response.status(Status.FORBIDDEN)

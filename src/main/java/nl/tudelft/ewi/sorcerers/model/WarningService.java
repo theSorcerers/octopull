@@ -25,4 +25,7 @@ public class WarningService {
 			return warning;
 	}
 
+	public Warning addWarningIfNew(Warning warning) {
+		return this.addWarningIfNew(warning.getRepo(), warning.getCommit(), warning.getPath(), warning.getLine(), warning.getMessage());
+	}
 }

@@ -39,9 +39,7 @@ public class RepoResource {
 		warnings.addAll(baseWarnings);
 		warnings.addAll(headWarnings);
 		
-		return new RepositoryDTO(
-			new DiffDTO(base, head, warnings)
-		);
+		return new RepositoryDTO(new DiffDTO(base, head, warnings));
 	}
 	
 	@JsonSerialize

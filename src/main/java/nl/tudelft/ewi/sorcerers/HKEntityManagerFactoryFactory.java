@@ -44,6 +44,8 @@ public class HKEntityManagerFactoryFactory implements Factory<EntityManagerFacto
 
 	@Override
 	public void dispose(EntityManagerFactory instance) {
-		// TODO
+		if (instance.isOpen()) {
+			instance.close();
+		}
 	}
 }
