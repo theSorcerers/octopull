@@ -19,3 +19,7 @@ body.is-not-chrome .show-chrome {
 body.is-chrome .show-not-chrome {
 	display: none;
 }
+
+.show-octopull-installed {
+	display: none;
+}
