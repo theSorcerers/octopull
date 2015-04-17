@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
   {% if site.favicon %}<link rel="shortcut icon" href="{{ site.favicon }}" type="image/x-icon">{% endif %}
 	{% if site.touch_icon %}<link rel="apple-touch-icon" href="{{ site.touch_icon }}">{% endif %}
+	<link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/pnpjfmionfckocmegdmijflakfoigjmk">
 </head>
 <body>
   <div id="main">
@@ -61,4 +62,11 @@
 </body>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script src="site.js"></script>
+<script>
+if (typeof(chrome) != "undefined") {
+	$("body").addClass("is-chrome");
+} else {
+	$("body").addClass("is-not-chrome");
+}
+</script>
 </html>

@@ -1,0 +1,21 @@
+.btn {
+	background-color: rgba(0,0,0,0.18);
+	border: 0px;
+	padding: 10px 13px;
+	margin: 5px;
+	text-decoration: none;
+	border-radius: 3px;
+	font-weight: bold;
+}
+
+.btn:hover {
+	background-color: rgba(0,0,0,0.25);
+}
+
+body.is-not-chrome .show-chrome {
+	display: none;
+}
+
+body.is-chrome .show-not-chrome {
+	display: none;
+}
