@@ -28,4 +28,8 @@ public class WarningService {
 	public Warning addWarningIfNew(Warning warning) {
 		return this.addWarningIfNew(warning.getRepo(), warning.getCommit(), warning.getPath(), warning.getLine(), warning.getMessage());
 	}
+
+	public Warning get(String repo, String commit, Integer warningId) {
+		return this.warningRepository.get(repo, commit, warningId);
+	}
 }

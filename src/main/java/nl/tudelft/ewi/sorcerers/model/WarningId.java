@@ -15,6 +15,15 @@ public class WarningId implements Serializable {
 	@Id
 	@GeneratedValue
 	private Integer warningId;
+	
+	@SuppressWarnings("unused")
+	private WarningId() {}
+	
+	public WarningId(String repo, String commit, Integer warningId) {
+		this.repo = repo;
+		this.commit = commit;
+		this.warningId = warningId;
+	}
 
 	public String getRepo() {
 		return this.repo;

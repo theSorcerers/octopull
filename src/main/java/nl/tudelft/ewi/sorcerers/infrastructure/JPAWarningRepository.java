@@ -11,6 +11,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import nl.tudelft.ewi.sorcerers.model.Warning;
+import nl.tudelft.ewi.sorcerers.model.WarningId;
 import nl.tudelft.ewi.sorcerers.model.WarningRepository;
 
 public class JPAWarningRepository implements WarningRepository {
@@ -25,6 +26,11 @@ public class JPAWarningRepository implements WarningRepository {
 	public Warning add(Warning warning) {
 		entityManager.persist(warning);
 		return warning;
+	}
+	
+	@Override
+	public Warning get(String repo, String commit, Integer warningId) {
+		return this.entityManager.find(Warning.class, new WarningId(repo, commit, warningId));
 	}
 	
 	@Override
