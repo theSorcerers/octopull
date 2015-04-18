@@ -19,7 +19,7 @@ public class CommentService {
 	}
 
 	public Object createCommentFromWarning(String repo, String commit,
-			Integer warningId, Integer pullRequest, Integer position) throws IOException {
+			Integer pullRequest, Integer warningId, Integer position) throws IOException {
 		Warning warning = this.warningService.get(repo, commit, warningId);
 		if (warning == null) {
 			throw new IllegalArgumentException("No such warning exists.");
