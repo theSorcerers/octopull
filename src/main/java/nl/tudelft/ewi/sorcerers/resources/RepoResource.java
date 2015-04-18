@@ -12,7 +12,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
-import nl.tudelft.ewi.sorcerers.model.CommentService;
 import nl.tudelft.ewi.sorcerers.model.Warning;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
 
@@ -45,7 +44,7 @@ public class RepoResource {
 		
 		List<WarningDTO> transferWarnings = new ArrayList<WarningDTO>();
 		for (Warning w : warnings) {
-			WarningDTO wdto = new WarningDTO(w.getPath(), w.getLine(), w.getCommit(), w.getMessage());
+			WarningDTO wdto = new WarningDTO(w.getId(), w.getPath(), w.getLine(), w.getCommit(), w.getMessage());
 			transferWarnings.add(wdto);
 		}
 		
@@ -86,6 +85,8 @@ public class RepoResource {
 	
 	private static class WarningDTO {
 		@JsonProperty
+		private int id;
+		@JsonProperty
 		private String path;
 		@JsonProperty
 		private int line;
@@ -94,7 +95,8 @@ public class RepoResource {
 		@JsonProperty
 		private String message;
 		
-		public WarningDTO(String path, int line, String commit, String message) {
+		public WarningDTO(int warningId, String path, int line, String commit, String message) {
+			this.id = warningId;
 			this.path = path;
 			this.line = line;
 			this.commit = commit;

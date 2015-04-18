@@ -183,7 +183,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 					scopes = new ArrayList<String>(verifyToken.scopes);
 				}
 				boolean isSecure = requestContext.getSecurityContext().isSecure();
-				requestContext.setSecurityContext(new GitHubSecurityContext(username, scopes, isSecure));
+				requestContext.setSecurityContext(new GitHubSecurityContext(username, token, scopes, isSecure));
 			}
 		} else {
 //			Response forbiddenResponse = Response.status(Status.FORBIDDEN)
@@ -304,14 +304,20 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 
 	public static class GitHubSecurityContext implements SecurityContext {
 		private String username;
+		private String token;
 		private ArrayList<String> scopes;
 		private boolean secure;
 
-		public GitHubSecurityContext(String username, List<String> scopes,
+		public GitHubSecurityContext(String username, String token, List<String> scopes,
 				boolean isSecure) {
 			this.username = username;
+			this.token = token;
 			this.scopes = new ArrayList<String>(scopes);
 			this.secure = isSecure;
+		}
+		
+		public String getToken() {
+			return this.token;
 		}
 
 		@Override

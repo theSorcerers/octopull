@@ -5,16 +5,22 @@ import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import nl.tudelft.ewi.sorcerers.github.GitHubClientFactory;
 import nl.tudelft.ewi.sorcerers.github.LineMapService;
+import nl.tudelft.ewi.sorcerers.github.PullRequestServiceFactory;
 import nl.tudelft.ewi.sorcerers.infrastructure.JPAWarningRepository;
+import nl.tudelft.ewi.sorcerers.model.CommentService;
 import nl.tudelft.ewi.sorcerers.model.WarningRepository;
 import nl.tudelft.ewi.sorcerers.model.WarningService;
 import nl.tudelft.ewi.sorcerers.servlet.BaseURIFilter;
 import nl.tudelft.ewi.sorcerers.servlet.CORSResponseFilter;
 import nl.tudelft.ewi.sorcerers.servlet.GitHubOAuthFilter;
+import nl.tudelft.ewi.sorcerers.usecases.CreateCommentFromWarning;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
 
+import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CommitService;
+import org.eclipse.egit.github.core.service.PullRequestService;
 import org.glassfish.hk2.api.InterceptionService;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -62,7 +68,6 @@ public class AppConfig extends ResourceConfig {
 				bindAsContract(TravisService.class);
 			}
 		});
-				
 		
 		final String postgresUrl = System.getenv("POSTGRES_URL");
 		if (postgresUrl == null) {
@@ -84,14 +89,24 @@ public class AppConfig extends ResourceConfig {
 		register(new AbstractBinder() {
 			@Override
 			protected void configure() {
-				bindAsContract(GetWarningsForCommit.class);
-				bindAsContract(WarningService.class);
+				bindFactory(GitHubClientFactory.class).to(GitHubClient.class).in(RequestScoped.class);
+				bindFactory(PullRequestServiceFactory.class).to(PullRequestService.class).in(RequestScoped.class);
 			}
 		});
 		
 		register(new AbstractBinder() {
 			@Override
 			protected void configure() {
+				bindAsContract(GetWarningsForCommit.class);
+				bindAsContract(CreateCommentFromWarning.class);
+			}
+		});
+		
+		register(new AbstractBinder() {
+			@Override
+			protected void configure() {
+				bindAsContract(CommentService.class);
+				bindAsContract(WarningService.class);
 				bindAsContract(CommitService.class);
 				bindAsContract(LineMapService.class);
 			}
