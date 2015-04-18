@@ -29,6 +29,7 @@ public class CommentService {
 			comment.setCommitId(commit);
 			comment.setPath(warning.getPath());
 			comment.setPosition(position);
+			System.out.println(String.format("%s, %s, %d, %s, %d", commit, warning.getPath(), position, repo, pullRequest));
 			comment = this.pullRequestService.createComment(RepositoryId.createFromId(repo), pullRequest, comment);
 			return comment.getId();
 		}

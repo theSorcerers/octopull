@@ -49,17 +49,20 @@ public class RepoResource {
 		}
 		
 		String createCommentURL = uriInfo.getBaseUriBuilder().path(CommentResource.class).path(CommentResource.class, "createCommentFromWarning").build().toString();
-		return new RepositoryDTO(new DiffDTO(base, head, transferWarnings, createCommentURL), pullRequest);
+		return new RepositoryDTO(repo, new DiffDTO(base, head, transferWarnings, createCommentURL), pullRequest);
 	}
 	
 	@JsonSerialize
 	private static class RepositoryDTO {
 		@JsonProperty
+		private String id;
+		@JsonProperty
 		private DiffDTO diff;
 		@JsonProperty
 		private int pullRequestNumber;
 		
-		public RepositoryDTO(DiffDTO diff, int pullRequestNumber) {
+		public RepositoryDTO(String id, DiffDTO diff, int pullRequestNumber) {
+			this.id = id;
 			this.diff = diff;
 			this.pullRequestNumber = pullRequestNumber;
 		}
