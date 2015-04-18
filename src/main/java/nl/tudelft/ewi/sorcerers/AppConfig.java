@@ -21,8 +21,10 @@ import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.PullRequestService;
+import org.glassfish.hk2.api.Immediate;
 import org.glassfish.hk2.api.InterceptionService;
 import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -36,6 +38,8 @@ public class AppConfig extends ResourceConfig {
 		packages("nl.tudelft.ewi.sorcerers.resources");
 
 		System.out.println("Registering injectables...");
+		
+		ServiceLocatorUtilities.enableImmediateScope(serviceLocator);
 		
 		register(BaseURIFilter.class);
 		register(JacksonJaxbJsonProvider.class);
@@ -79,7 +83,7 @@ public class AppConfig extends ResourceConfig {
 			protected void configure() {	
 				bind(postgresUrl).named("env:POSTGRES_URL").to(String.class);
 				
-				bindFactory(HKEntityManagerFactoryFactory.class).to(EntityManagerFactory.class).in(Singleton.class);
+				bindFactory(HKEntityManagerFactoryFactory.class).to(EntityManagerFactory.class).in(Immediate.class);
 				bindFactory(HKEntityManagerFactory.class).to(EntityManager.class).in(RequestScoped.class);
 				bind(TransactionInterceptionService.class).to(InterceptionService.class).in(Singleton.class);
 				bind(JPAWarningRepository.class).to(WarningRepository.class).in(RequestScoped.class);

@@ -38,7 +38,6 @@ public class HKEntityManagerFactoryFactory implements Factory<EntityManagerFacto
 		persistanceProperties.put("hibernate.c3p0.idleConnectionTestPeriod", 3600);
 		
 		EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("octopull-jpa", persistanceProperties);
-		
 		return entityManagerFactory;
 	}
 
