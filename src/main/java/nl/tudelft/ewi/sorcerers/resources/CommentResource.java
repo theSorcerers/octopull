@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -24,6 +25,7 @@ public class CommentResource {
 	}
 
 	@POST
+	@Transactional
 	@Path("from-warning")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response createCommentFromWarning(
