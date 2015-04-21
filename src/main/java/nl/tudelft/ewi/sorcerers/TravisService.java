@@ -81,7 +81,7 @@ public class TravisService {
 	}
 
 	public InputStream getLogFromJobId(String host, String id) throws IOException {
-		AccessTokenHolder accessTokenHolder = authenticate();
+		AccessTokenHolder accessTokenHolder = authenticate(host);
 
 		Invocation logInvocation = this.client
 				.target("https://api.{host}/jobs/{jobId}/log.txt")
@@ -103,11 +103,12 @@ public class TravisService {
 		}
 	}
 
-	private AccessTokenHolder authenticate() throws IOException {
+	private AccessTokenHolder authenticate(String host) throws IOException {
 		String authRequest = String.format("{\"github_token\":\"%s\"}",
 				this.githubToken);
 		Invocation authInvocation = this.client
-				.target("https://api.travis-ci.com/auth/github")
+				.target("https://api.{host}/auth/github")
+				.resolveTemplate("host", host)
 				.request("application/vnd.travis-ci.2+json")
 				.header("User-Agent", "Octopull/1.0.0")
 				.buildPost(json(authRequest));
