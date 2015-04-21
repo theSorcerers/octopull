@@ -68,8 +68,10 @@ public class CheckstyleLogParser implements LogParser {
 			CheckStyleReport report = mapper.readValue(bufferedReader, CheckStyleReport.class);
 			for (CheckStyleFile file : report.files) {
 				String path = file.name;
-				for (CheckStyleError error : file.errors) {
-					warnings.add(new Warning(null, null, path, error.line, error.message));
+				if (file.errors != null) {
+					for (CheckStyleError error : file.errors) {
+						warnings.add(new Warning(null, null, path, error.line, error.message));
+					}
 				}
 			}
 		} catch (JsonParseException e) {
