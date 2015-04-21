@@ -121,8 +121,12 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 	
 	private void redirectWithToken(ContainerRequestContext requestContext,
 			String returnAddress, String token) {
+		String baseUri = requestContext.getUriInfo().getBaseUriBuilder()
+				.scheme(null).host(null).port(-1).toString();
+		
+		System.out.println(baseUri);
 		NewCookie tokenCookie = new NewCookie("github_token",
-				token, "/", null, Cookie.DEFAULT_VERSION, null,
+				token, baseUri, null, Cookie.DEFAULT_VERSION, null,
 				NewCookie.DEFAULT_MAX_AGE, null, false, true);
 		requestContext.abortWith(Response
 				.seeOther(URI.create(returnAddress)).cookie(tokenCookie)
