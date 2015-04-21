@@ -80,11 +80,12 @@ public class TravisService {
 				.hostnameVerifier(hostnameVerifier).build();
 	}
 
-	public InputStream getLogFromJobId(String id) throws IOException {
+	public InputStream getLogFromJobId(String host, String id) throws IOException {
 		AccessTokenHolder accessTokenHolder = authenticate();
 
 		Invocation logInvocation = this.client
-				.target("https://api.travis-ci.com/jobs/{jobId}/log.txt")
+				.target("https://api.{host}/jobs/{jobId}/log.txt")
+				.resolveTemplate("host", host)
 				.resolveTemplate("jobId", id)
 				.queryParam("access_token", accessTokenHolder.access_token)
 				.request(MediaType.TEXT_PLAIN)
@@ -98,6 +99,7 @@ public class TravisService {
 			throw new RuntimeException(String.format(
 					"Failed to retrieve log from Travis CI, got status %d",
 					logResponse.getStatus()));
+			
 		}
 	}
 

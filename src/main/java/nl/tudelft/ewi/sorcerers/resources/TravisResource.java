@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
@@ -49,10 +50,11 @@ public class TravisResource {
 		this.logParsers = logParsers;
 	}
 	
+	@RolesAllowed("user")
 	@GET
 	@Path("/webhook")
 	public Response test() {
-		return webhook("{\"commit\": \"123\", \"repository\": { \"owner_name\": \"rmhartog\", \"name\": \"octopull\" }, \"matrix\": [{ \"id\": 16181256 }] }");
+		return webhook("{\"commit\": \"123\", \"build_url\": \"https://travis-ci.org/svenfuchs/minimal/builds/1\", \"repository\": { \"owner_name\": \"rmhartog\", \"name\": \"octopull\" }, \"matrix\": [{ \"id\": 16181256 }] }");
 	}
 	
 	@POST
@@ -69,13 +71,23 @@ public class TravisResource {
 		mapper.getSerializationConfig().withAppendedAnnotationIntrospector(introspector);
 		try {
 			TravisPayload travisPayload = mapper.readValue(payload, TravisPayload.class);
+			
+			String host = "travis-ci.org";
+			Pattern buildPattern = Pattern.compile("^http(s?)://([~/]+)/(.*)$");
+			if (travisPayload.build_url != null) {
+				Matcher matcher = buildPattern.matcher(travisPayload.build_url);
+				if (matcher.matches()) {
+					host = matcher.group(1);
+				}
+			}
+			
 			System.out.println(travisPayload.commit);
 			System.out.println("Looping the matrix");
 			for (TravisJobPayload job : travisPayload.matrix) {
 				System.out.println(job.id);
 				InputStream log = null;
 				try {
-					log = this.travisService.getLogFromJobId(job.id);
+					log = this.travisService.getLogFromJobId(host, job.id);
 					if (log != null) {
 						parseLog(travisPayload, log);
 					}
@@ -157,6 +169,7 @@ public class TravisResource {
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	private static class TravisPayload {
 		public String commit;
+		public String build_url;
 		public TravisRepository repository;
 		public List<TravisJobPayload> matrix;
 	}
