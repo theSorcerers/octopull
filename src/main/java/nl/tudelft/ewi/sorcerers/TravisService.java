@@ -80,11 +80,19 @@ public class TravisService {
 				.hostnameVerifier(hostnameVerifier).build();
 	}
 
-	public InputStream getLogFromJobId(String id) throws IOException {
-		AccessTokenHolder accessTokenHolder = authenticate();
+	public InputStream getLogFromJobId(String host, String id) throws IOException {
+		// TODO proper handling of private repo access tokens
+		AccessTokenHolder accessTokenHolder;
+		if ("travis-ci.org".equals(host)) {
+			accessTokenHolder = new AccessTokenHolder();
+			accessTokenHolder.access_token = null;
+		} else {
+			accessTokenHolder = authenticate(host);
+		}
 
 		Invocation logInvocation = this.client
-				.target("https://api.travis-ci.com/jobs/{jobId}/log.txt")
+				.target("https://api.{host}/jobs/{jobId}/log.txt")
+				.resolveTemplate("host", host)
 				.resolveTemplate("jobId", id)
 				.queryParam("access_token", accessTokenHolder.access_token)
 				.request(MediaType.TEXT_PLAIN)
@@ -98,14 +106,16 @@ public class TravisService {
 			throw new RuntimeException(String.format(
 					"Failed to retrieve log from Travis CI, got status %d",
 					logResponse.getStatus()));
+			
 		}
 	}
 
-	private AccessTokenHolder authenticate() throws IOException {
+	private AccessTokenHolder authenticate(String host) throws IOException {
 		String authRequest = String.format("{\"github_token\":\"%s\"}",
 				this.githubToken);
 		Invocation authInvocation = this.client
-				.target("https://api.travis-ci.com/auth/github")
+				.target("https://api.{host}/auth/github")
+				.resolveTemplate("host", host)
 				.request("application/vnd.travis-ci.2+json")
 				.header("User-Agent", "Octopull/1.0.0")
 				.buildPost(json(authRequest));
