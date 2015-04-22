@@ -81,7 +81,14 @@ public class TravisService {
 	}
 
 	public InputStream getLogFromJobId(String host, String id) throws IOException {
-		AccessTokenHolder accessTokenHolder = authenticate(host);
+		// TODO proper handling of private repo access tokens
+		AccessTokenHolder accessTokenHolder;
+		if ("travis-ci.org".equals(host)) {
+			accessTokenHolder = new AccessTokenHolder();
+			accessTokenHolder.access_token = null;
+		} else {
+			accessTokenHolder = authenticate(host);
+		}
 
 		Invocation logInvocation = this.client
 				.target("https://api.{host}/jobs/{jobId}/log.txt")
