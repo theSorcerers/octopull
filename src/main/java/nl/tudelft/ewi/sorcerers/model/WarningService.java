@@ -1,17 +1,24 @@
 package nl.tudelft.ewi.sorcerers.model;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import org.eclipse.egit.github.core.RepositoryCommitCompare;
+import org.eclipse.egit.github.core.RepositoryId;
+import org.eclipse.egit.github.core.service.CommitService;
 import org.hibernate.exception.ConstraintViolationException;
 
 public class WarningService {
 	private WarningRepository warningRepository;
+	private CommitService commitService;
 
 	@Inject
-	public WarningService(WarningRepository warningRepository) {
+	public WarningService(WarningRepository warningRepository, CommitService commitService) {
 		this.warningRepository = warningRepository;
+		this.commitService = commitService;
 	}
 
 	public List<Warning> getWarningsForCommit(String repo, String commit) {
@@ -38,5 +45,16 @@ public class WarningService {
 
 	public Warning get(String repo, String commit, Integer warningId) {
 		return this.warningRepository.get(repo, commit, warningId);
+	}
+
+	public List<Warning> getWarningsForDiff(String repo, String base,
+			String head) throws IOException {
+		RepositoryCommitCompare compare = commitService.compare(RepositoryId.createFromId(repo), base, head);
+		String baseCommit = compare.getBaseCommit().getSha();
+		
+		ArrayList<Warning> warnings = new ArrayList<Warning>();
+		warnings.addAll(getWarningsForCommit(repo, baseCommit));
+		warnings.addAll(getWarningsForCommit(repo, head));
+		return warnings;
 	}
 }

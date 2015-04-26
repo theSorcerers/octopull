@@ -21,6 +21,7 @@ import nl.tudelft.ewi.sorcerers.servlet.CORSResponseFilter;
 import nl.tudelft.ewi.sorcerers.servlet.GitHubOAuthFilter;
 import nl.tudelft.ewi.sorcerers.usecases.CreateCommentFromWarning;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
+import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForDiff;
 
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CommitService;
@@ -108,6 +109,7 @@ public class AppConfig extends ResourceConfig {
 			@Override
 			protected void configure() {
 				bindAsContract(GetWarningsForCommit.class);
+				bindAsContract(GetWarningsForDiff.class);
 				bindAsContract(CreateCommentFromWarning.class);
 			}
 		});

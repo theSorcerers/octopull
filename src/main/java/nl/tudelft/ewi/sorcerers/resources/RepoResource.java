@@ -1,5 +1,6 @@
 package nl.tudelft.ewi.sorcerers.resources;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import javax.ws.rs.core.UriInfo;
 
 import nl.tudelft.ewi.sorcerers.model.Warning;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
+import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForDiff;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -24,23 +26,21 @@ public class RepoResource {
 	@Context UriInfo uriInfo;
 	private String repo;
 	private GetWarningsForCommit gwfc;
+	private GetWarningsForDiff gwfd;
 	
 	@Inject
-	public RepoResource(@PathParam("repo") String repo, GetWarningsForCommit gwfc) {
+	public RepoResource(@PathParam("repo") String repo, GetWarningsForCommit gwfc, GetWarningsForDiff gwfd) {
 		this.repo = repo;
 		this.gwfc = gwfc;
+		this.gwfd = gwfd;
 	}
 
 	@GET
 	@Path("pulls/{pull: [0-9]+}/diff/{base: [0-9a-z]+}/{head: [0-9a-z]+}")
 	@Produces("application/vnd.octopull.repository+json")
-	public RepositoryDTO getDiff(@PathParam("pull") Integer pullRequest, @PathParam("base") String base, @PathParam("head") String head) {
+	public RepositoryDTO getDiff(@PathParam("pull") Integer pullRequest, @PathParam("base") String base, @PathParam("head") String head) throws IOException {
 		System.out.println(String.format("%s: %s / %s", repo, base, head));
-		List<Warning> baseWarnings = gwfc.execute(this.repo, base);
-		List<Warning> headWarnings = gwfc.execute(this.repo, head);
-		List<Warning> warnings = new ArrayList<Warning>();
-		warnings.addAll(baseWarnings);
-		warnings.addAll(headWarnings);
+		List<Warning> warnings = gwfd.execute(this.repo, head, base);
 		
 		List<WarningDTO> transferWarnings = new ArrayList<WarningDTO>();
 		for (Warning w : warnings) {
