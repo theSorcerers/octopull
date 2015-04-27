@@ -47,7 +47,7 @@ public class WarningService {
 		return this.warningRepository.get(repo, commit, warningId);
 	}
 
-	public List<Warning> getWarningsForDiff(String repo, String base,
+	public Diff getWarningsForDiff(String repo, String base,
 			String head) throws IOException {
 		RepositoryCommitCompare compare = commitService.compare(RepositoryId.createFromId(repo), base, head);
 		String baseCommit = compare.getBaseCommit().getSha();
@@ -55,6 +55,6 @@ public class WarningService {
 		ArrayList<Warning> warnings = new ArrayList<Warning>();
 		warnings.addAll(getWarningsForCommit(repo, baseCommit));
 		warnings.addAll(getWarningsForCommit(repo, head));
-		return warnings;
+		return new Diff(baseCommit, head, warnings);
 	}
 }

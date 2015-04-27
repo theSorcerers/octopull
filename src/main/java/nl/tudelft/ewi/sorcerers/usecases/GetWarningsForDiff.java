@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import nl.tudelft.ewi.sorcerers.model.Diff;
 import nl.tudelft.ewi.sorcerers.model.Warning;
 import nl.tudelft.ewi.sorcerers.model.WarningService;
 
@@ -16,7 +17,7 @@ public class GetWarningsForDiff {
 		this.warningService = warningService;
 	}
 	
-	public List<Warning> execute(String repo, String base, String head) throws IOException {
+	public Diff execute(String repo, String base, String head) throws IOException {
 		return this.warningService.getWarningsForDiff(repo, base, head);
 	}
 }

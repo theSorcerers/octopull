@@ -13,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
+import nl.tudelft.ewi.sorcerers.model.Diff;
 import nl.tudelft.ewi.sorcerers.model.Warning;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForDiff;
@@ -40,16 +41,16 @@ public class RepoResource {
 	@Produces("application/vnd.octopull.repository+json")
 	public RepositoryDTO getDiff(@PathParam("pull") Integer pullRequest, @PathParam("base") String base, @PathParam("head") String head) throws IOException {
 		System.out.println(String.format("%s: %s / %s", repo, base, head));
-		List<Warning> warnings = gwfd.execute(this.repo, head, base);
+		Diff diff = gwfd.execute(this.repo, head, base);
 		
 		List<WarningDTO> transferWarnings = new ArrayList<WarningDTO>();
-		for (Warning w : warnings) {
+		for (Warning w : diff.getWarnings()) {
 			WarningDTO wdto = new WarningDTO(w.getId(), w.getPath(), w.getLine(), w.getCommit(), w.getMessage());
 			transferWarnings.add(wdto);
 		}
 		
 		String createCommentURL = uriInfo.getBaseUriBuilder().path(CommentResource.class).path(CommentResource.class, "createCommentFromWarning").build().toString();
-		return new RepositoryDTO(repo, new DiffDTO(base, head, transferWarnings, createCommentURL), pullRequest);
+		return new RepositoryDTO(repo, new DiffDTO(diff.getBase(), diff.getHead(), transferWarnings, createCommentURL), pullRequest);
 	}
 	
 	@JsonSerialize
