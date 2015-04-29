@@ -5,6 +5,7 @@ import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import nl.tudelft.ewi.sorcerers.github.CommitServiceFactory;
 import nl.tudelft.ewi.sorcerers.github.GitHubClientFactory;
 import nl.tudelft.ewi.sorcerers.github.LineMapService;
 import nl.tudelft.ewi.sorcerers.github.PullRequestServiceFactory;
@@ -102,6 +103,7 @@ public class AppConfig extends ResourceConfig {
 			protected void configure() {
 				bindFactory(GitHubClientFactory.class).to(GitHubClient.class).in(RequestScoped.class);
 				bindFactory(PullRequestServiceFactory.class).to(PullRequestService.class).in(RequestScoped.class);
+				bindFactory(CommitServiceFactory.class).to(CommitService.class).in(RequestScoped.class);
 			}
 		});
 		
@@ -119,7 +121,6 @@ public class AppConfig extends ResourceConfig {
 			protected void configure() {
 				bindAsContract(CommentService.class);
 				bindAsContract(WarningService.class);
-				bindAsContract(CommitService.class);
 				bindAsContract(LineMapService.class);
 			}
 		});
