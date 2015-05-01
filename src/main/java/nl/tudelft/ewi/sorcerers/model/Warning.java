@@ -5,9 +5,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
+@Table(uniqueConstraints=
+	@UniqueConstraint(columnNames = {"repo", "commit", "path", "line", "message"})) 
 @IdClass(WarningId.class)
 @XmlRootElement
 public class Warning {
