@@ -21,7 +21,7 @@ public class GitHubClientFactory implements Factory<GitHubClient> {
 
 	@Override
 	public GitHubClient provide() {
-		GitHubClient client = new GitHubClient();
+		GitHubClient client = new PatchedGitHubClient();
 		Principal user = securityContext.getUserPrincipal();
 		if (user != null && user instanceof GitHubPrincipal) {
 			GitHubPrincipal githubUser = (GitHubPrincipal) user;
