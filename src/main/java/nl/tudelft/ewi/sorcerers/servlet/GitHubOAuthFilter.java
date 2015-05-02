@@ -113,6 +113,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 				.getBaseUriBuilder().path("oauth/authorize/");
 		uri.queryParam("client_id", this.clientId);
 		uri.queryParam("redirect_uri", redirectUri);
+		uri.queryParam("scope", "repo");
 		uri.queryParam("state", signReturnAddress(returnAddress));
 		
 		requestContext.abortWith(Response.temporaryRedirect(uri.build())
@@ -305,6 +306,32 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 		public List<String> scopes;
 		public UserPayload user;
 	}
+	
+	public static class GitHubPrincipal implements Principal {
+		private String username;
+		private String token;
+		private ArrayList<String> scopes;
+
+		public GitHubPrincipal(String username, String token,
+				ArrayList<String> scopes) {
+			this.username = username;
+			this.token = token;
+			this.scopes = new ArrayList<String>(scopes);
+		}
+
+		@Override
+		public String getName() {
+			return this.username;
+		}
+		
+		public String getToken() {
+			return this.token;
+		}
+		
+		public List<String> getScopes() {
+			return this.scopes;
+		}
+	}
 
 	public static class GitHubSecurityContext implements SecurityContext {
 		private String username;
@@ -330,12 +357,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 				return null;
 			} else {
 				final String username = this.username;
-				return new Principal() {
-					@Override
-					public String getName() {
-						return username;
-					}
-				};
+				return new GitHubPrincipal(username, token, scopes);
 			}
 		}
 
