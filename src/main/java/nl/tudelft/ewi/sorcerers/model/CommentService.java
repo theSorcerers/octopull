@@ -17,8 +17,8 @@ public class CommentService {
 		this.warningService = warningService;
 		this.pullRequestService = pullRequestService;
 	}
-
-	public Object createCommentFromWarning(String repo, String commit,
+	
+	public CommitComment createCommentFromWarning(String repo, String commit,
 			Integer pullRequest, Integer warningId, Integer position) throws IOException {
 		Warning warning = this.warningService.get(repo, commit, warningId);
 		if (warning == null) {
@@ -31,7 +31,7 @@ public class CommentService {
 			comment.setPosition(position);
 			System.out.println(String.format("%s, %s, %d, %s, %d", commit, warning.getPath(), position, repo, pullRequest));
 			comment = this.pullRequestService.createComment(RepositoryId.createFromId(repo), pullRequest, comment);
-			return comment.getId();
+			return comment;
 		}
 	}
 }
