@@ -24,8 +24,14 @@ public class CommentService {
 		if (warning == null) {
 			throw new IllegalArgumentException("No such warning exists.");
 		} else {
+			StringBuilder bodyBuilder = new StringBuilder();
+			bodyBuilder.append("*Auto-generated comment*\n\n");
+			bodyBuilder.append("    ");
+			bodyBuilder.append(warning.getMessage().replaceAll("\n", "\n    "));
+			bodyBuilder.append("\n");
+			
 			CommitComment comment = new CommitComment();
-			comment.setBody("this is a test comment!");
+			comment.setBody(bodyBuilder.toString());
 			comment.setCommitId(commit);
 			comment.setPath(warning.getPath());
 			comment.setPosition(position);
