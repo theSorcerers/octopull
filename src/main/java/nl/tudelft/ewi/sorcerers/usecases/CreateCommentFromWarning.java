@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
+import org.eclipse.egit.github.core.CommitComment;
+
 import nl.tudelft.ewi.sorcerers.model.CommentService;
 
 public class CreateCommentFromWarning {
@@ -14,7 +16,7 @@ public class CreateCommentFromWarning {
 		this.commentService = commentService;
 	}
 	
-	public Object execute(String repo, String commit, Integer pullRequest, Integer warningId, Integer position) throws IOException {
+	public CommitComment execute(String repo, String commit, Integer pullRequest, Integer warningId, Integer position) throws IOException {
 		return this.commentService.createCommentFromWarning(repo, commit, pullRequest, warningId, position);
 	}
 }

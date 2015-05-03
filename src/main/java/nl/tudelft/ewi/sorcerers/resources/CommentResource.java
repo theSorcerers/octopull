@@ -1,6 +1,7 @@
 package nl.tudelft.ewi.sorcerers.resources;
 
 import java.io.IOException;
+import java.net.URI;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -12,6 +13,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.egit.github.core.CommitComment;
+
+import nl.tudelft.ewi.sorcerers.github.PatchedGitHubClient.PatchedCommitComment;
 import nl.tudelft.ewi.sorcerers.usecases.CreateCommentFromWarning;
 
 @RolesAllowed("user")
@@ -34,7 +38,7 @@ public class CommentResource {
 			@FormParam("pullRequest") Integer pullRequest,
 			@FormParam("warningId") Integer warningId,
 			@FormParam("position") Integer position) throws IOException {
-		this.ccfw.execute(repo, commit, pullRequest, warningId, position);
-		return Response.ok().build();
+		PatchedCommitComment comment = (PatchedCommitComment) this.ccfw.execute(repo, commit, pullRequest, warningId, position);
+		return Response.created(URI.create(comment.getHtmlUrl())).build();
 	}
 }

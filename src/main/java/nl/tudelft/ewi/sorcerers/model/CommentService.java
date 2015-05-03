@@ -11,27 +11,43 @@ import org.eclipse.egit.github.core.service.PullRequestService;
 public class CommentService {
 	private WarningService warningService;
 	private PullRequestService pullRequestService;
+	private WarningCommentRepository warningCommentRepository;
 
 	@Inject
-	public CommentService(WarningService warningService, PullRequestService pullRequestService) {
+	public CommentService(WarningService warningService,
+			PullRequestService pullRequestService,
+			WarningCommentRepository warningCommentRepository) {
 		this.warningService = warningService;
 		this.pullRequestService = pullRequestService;
+		this.warningCommentRepository = warningCommentRepository;
 	}
 
-	public Object createCommentFromWarning(String repo, String commit,
-			Integer pullRequest, Integer warningId, Integer position) throws IOException {
+	public CommitComment createCommentFromWarning(String repo, String commit,
+			Integer pullRequest, Integer warningId, Integer position)
+			throws IOException {
 		Warning warning = this.warningService.get(repo, commit, warningId);
 		if (warning == null) {
 			throw new IllegalArgumentException("No such warning exists.");
 		} else {
+			StringBuilder bodyBuilder = new StringBuilder();
+			bodyBuilder.append("*Auto-generated comment*\n\n");
+			bodyBuilder.append("    ");
+			bodyBuilder.append(warning.getMessage().replaceAll("\n", "\n    "));
+			bodyBuilder.append("\n");
+
 			CommitComment comment = new CommitComment();
-			comment.setBody("this is a test comment!");
+			comment.setBody(bodyBuilder.toString());
 			comment.setCommitId(commit);
 			comment.setPath(warning.getPath());
 			comment.setPosition(position);
-			System.out.println(String.format("%s, %s, %d, %s, %d", commit, warning.getPath(), position, repo, pullRequest));
-			comment = this.pullRequestService.createComment(RepositoryId.createFromId(repo), pullRequest, comment);
-			return comment.getId();
+			System.out.println(String.format("%s, %s, %d, %s, %d", commit,
+					warning.getPath(), position, repo, pullRequest));
+			comment = this.pullRequestService.createComment(
+					RepositoryId.createFromId(repo), pullRequest, comment);
+
+			this.warningCommentRepository.add(new WarningComment(warning.getRepo(), warning.getCommit(), warning.getId(), comment.getId()));
+			
+			return comment;
 		}
 	}
 }
