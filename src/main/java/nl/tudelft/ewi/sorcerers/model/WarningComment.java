@@ -2,8 +2,10 @@ package nl.tudelft.ewi.sorcerers.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 
 @Entity
+@IdClass(WarningCommentId.class)
 public class WarningComment {
 	@Id private String repo;
 	@Id private String commit;
