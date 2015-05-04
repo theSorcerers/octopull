@@ -8,9 +8,11 @@ import javax.persistence.EntityManagerFactory;
 import nl.tudelft.ewi.sorcerers.github.GitHubClientFactory;
 import nl.tudelft.ewi.sorcerers.github.LineMapService;
 import nl.tudelft.ewi.sorcerers.github.PullRequestServiceFactory;
+import nl.tudelft.ewi.sorcerers.infrastructure.JPAPageViewRepository;
 import nl.tudelft.ewi.sorcerers.infrastructure.JPAWarningCommentRepository;
 import nl.tudelft.ewi.sorcerers.infrastructure.JPAWarningRepository;
 import nl.tudelft.ewi.sorcerers.model.CommentService;
+import nl.tudelft.ewi.sorcerers.model.PageViewRepository;
 import nl.tudelft.ewi.sorcerers.model.WarningCommentRepository;
 import nl.tudelft.ewi.sorcerers.model.WarningRepository;
 import nl.tudelft.ewi.sorcerers.model.WarningService;
@@ -90,6 +92,7 @@ public class AppConfig extends ResourceConfig {
 				bind(TransactionInterceptionService.class).to(InterceptionService.class).in(Singleton.class);
 				bind(JPAWarningRepository.class).to(WarningRepository.class).in(RequestScoped.class);
 				bind(JPAWarningCommentRepository.class).to(WarningCommentRepository.class).in(RequestScoped.class);
+				bind(JPAPageViewRepository.class).to(PageViewRepository.class).in(RequestScoped.class);
 			}
 		});
 
