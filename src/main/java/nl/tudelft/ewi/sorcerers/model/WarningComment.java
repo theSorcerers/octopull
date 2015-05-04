@@ -1,5 +1,8 @@
 package nl.tudelft.ewi.sorcerers.model;
 
+import java.util.Date;
+
+import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -11,11 +14,12 @@ public class WarningComment {
 	@Id private String commit;
 	@Id private Integer warningId;
 	@Id private Long commentId;
+	@Basic private Date date;
 	
 	@SuppressWarnings("unused")
 	private WarningComment() {}
 	
-	public WarningComment(String repo, String commit, int warningId, long commentId) {
+	public WarningComment(String repo, String commit, int warningId, Date date, long commentId) {
 		this.repo = repo;
 		this.commit = commit;
 		this.warningId = warningId;

@@ -1,6 +1,7 @@
 package nl.tudelft.ewi.sorcerers.model;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.inject.Inject;
 
@@ -45,7 +46,7 @@ public class CommentService {
 			comment = this.pullRequestService.createComment(
 					RepositoryId.createFromId(repo), pullRequest, comment);
 
-			this.warningCommentRepository.add(new WarningComment(warning.getRepo(), warning.getCommit(), warning.getId(), comment.getId()));
+			this.warningCommentRepository.add(new WarningComment(warning.getRepo(), warning.getCommit(), warning.getId(), new Date(), comment.getId()));
 			
 			return comment;
 		}
