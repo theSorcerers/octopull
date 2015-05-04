@@ -39,6 +39,8 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 @Path("/travis")
 public class TravisResource {
+	private static final Pattern RESULT_PATTERN = Pattern.compile("^== ([_A-Z]+)_RESULT ==$");
+	private static final Pattern COMMIT_PATTERN = Pattern.compile("^OCTOPULL_SHA=([0-9a-z]+)$");
 	private TravisService travisService;
 	private WarningService warningService;
 	private IterableProvider<LogParser> logParsers;
@@ -122,22 +124,28 @@ public class TravisResource {
 		try {
 			reader = new BufferedReader(new InputStreamReader(logStream, StandardCharsets.UTF_8));
 
-			Pattern resultPattern = Pattern.compile("^== ([_A-Z]+)_RESULT ==$");
+			Pattern commitPattern = COMMIT_PATTERN;
+			Pattern resultPattern = RESULT_PATTERN;
 			String line;
 			while ((line = reader.readLine()) != null){
-				Matcher matcher = resultPattern.matcher(line);
-				if (matcher.matches()) {
-					String tool = matcher.group(1);
-					Reader r = new ReadUntilReader(reader, ("== END_" + tool + "_RESULT ==").toCharArray());
-					LogParser parser = logParsers.named(tool.toLowerCase()).get();
-					if (parser != null) {
-						System.out.println("parser: " + tool);
-						for (Warning warning : parser.parse(r)) {
-							String path = warning.getPath().replaceAll("^/home/travis/build/" + repo + "/", "");
-							this.warningService.addWarningIfNew(repo, commit, path, warning.getLine(), warning.getMessage());
+				Matcher commitMatcher = commitPattern.matcher(line);
+				if (commitMatcher.matches()) {
+					commit = commitMatcher.group(1);
+				} else {
+					Matcher resultMatcher = resultPattern.matcher(line);
+					if (resultMatcher.matches()) {
+						String tool = resultMatcher.group(1);
+						Reader r = new ReadUntilReader(reader, ("== END_" + tool + "_RESULT ==").toCharArray());
+						LogParser parser = logParsers.named(tool.toLowerCase()).get();
+						if (parser != null) {
+							System.out.println("parser: " + tool);
+							for (Warning warning : parser.parse(r)) {
+								String path = warning.getPath().replaceAll("^/home/travis/build/" + repo + "/", "");
+								this.warningService.addWarningIfNew(repo, commit, path, warning.getLine(), warning.getMessage());
+							}
 						}
+						r.close();
 					}
-					r.close();
 				}
 			}
 		} catch (IOException e) {

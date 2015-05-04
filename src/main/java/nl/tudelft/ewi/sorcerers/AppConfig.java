@@ -5,6 +5,7 @@ import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import nl.tudelft.ewi.sorcerers.github.CommitServiceFactory;
 import nl.tudelft.ewi.sorcerers.github.GitHubClientFactory;
 import nl.tudelft.ewi.sorcerers.github.LineMapService;
 import nl.tudelft.ewi.sorcerers.github.PullRequestServiceFactory;
@@ -21,6 +22,7 @@ import nl.tudelft.ewi.sorcerers.servlet.CORSResponseFilter;
 import nl.tudelft.ewi.sorcerers.servlet.GitHubOAuthFilter;
 import nl.tudelft.ewi.sorcerers.usecases.CreateCommentFromWarning;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
+import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForDiff;
 
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CommitService;
@@ -101,6 +103,7 @@ public class AppConfig extends ResourceConfig {
 			protected void configure() {
 				bindFactory(GitHubClientFactory.class).to(GitHubClient.class).in(RequestScoped.class);
 				bindFactory(PullRequestServiceFactory.class).to(PullRequestService.class).in(RequestScoped.class);
+				bindFactory(CommitServiceFactory.class).to(CommitService.class).in(RequestScoped.class);
 			}
 		});
 		
@@ -108,6 +111,7 @@ public class AppConfig extends ResourceConfig {
 			@Override
 			protected void configure() {
 				bindAsContract(GetWarningsForCommit.class);
+				bindAsContract(GetWarningsForDiff.class);
 				bindAsContract(CreateCommentFromWarning.class);
 			}
 		});
@@ -117,7 +121,6 @@ public class AppConfig extends ResourceConfig {
 			protected void configure() {
 				bindAsContract(CommentService.class);
 				bindAsContract(WarningService.class);
-				bindAsContract(CommitService.class);
 				bindAsContract(LineMapService.class);
 			}
 		});
