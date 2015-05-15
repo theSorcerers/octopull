@@ -176,6 +176,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 			}
 		} else if (getGithubToken(requestContext) != null) {
 			String token = getGithubToken(requestContext);
+			System.out.format("Got github token %s", token);
 			AuthorizationPayload verifyToken = verifyToken(token);
 
 			if (verifyToken != null) {
@@ -233,6 +234,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 			}
 			return authPayload;
 		} else {
+			System.out.format("Received error in verify response %d", verifyResponse.getStatus());
 			return null;
 		}
 	}
@@ -256,6 +258,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 			return exchangeBody.getFirst("access_token");
 		} else {
 			// TODO handle errors
+			System.out.format("Error, token exchange returned status %d", exchangeResponse.getStatus());
 			return null;
 		}
 	}
