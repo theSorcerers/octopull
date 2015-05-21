@@ -1,5 +1,6 @@
 package nl.tudelft.ewi.sorcerers.servlet;
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static javax.ws.rs.client.Entity.form;
 import static javax.ws.rs.core.Response.Status.OK;
 
@@ -38,6 +39,7 @@ import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
@@ -47,10 +49,11 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.eclipse.egit.github.core.User;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
@@ -182,7 +185,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 			if (verifyToken != null) {
 				String username = null;
 				if (verifyToken.user != null) {
-					username = verifyToken.user.login;
+					username = verifyToken.user.getLogin();
 				}
 				List<String> scopes = Arrays.asList(new String[0]);
 				if (verifyToken.scopes != null) {
@@ -201,20 +204,18 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 	private AuthorizationPayload verifyToken(String token) {
 		Client client = createClient();
 		
-		HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(this.clientId, this.clientSecret);
-		
 		Invocation verifyToken = client
-			.target("https://api.github.com/applications/{client_id}/tokens/{access_token}")
-			.resolveTemplate("client_id", this.clientId)
-			.resolveTemplate("access_token", token)
-			.register(feature)
+			.target("https://api.github.com/user")
+			.queryParam("access_token", token)
 			.request()
+			.accept(MediaType.APPLICATION_JSON)
 			.buildGet();
 		
 		Response verifyResponse = verifyToken.invoke();
 		if (verifyResponse.getStatus() == 200) {
 			// TODO temporary
 			ObjectMapper mapper = new ObjectMapper();
+			mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
 			AnnotationIntrospector introspector = new JacksonAnnotationIntrospector();
 			// make deserializer use JAXB annotations (only)
 			mapper.getDeserializationConfig().withAppendedAnnotationIntrospector(
@@ -223,11 +224,15 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 			mapper.getSerializationConfig().withAppendedAnnotationIntrospector(
 					introspector);
 
-			AuthorizationPayload authPayload = null;
+			AuthorizationPayload authPayload = new AuthorizationPayload();
 			try {
-				authPayload = mapper.readValue(
+				String scopesHeader = verifyResponse.getHeaderString("X-OAuth-Scopes");
+				if (scopesHeader != null) {
+					authPayload.scopes = Arrays.asList(scopesHeader.split(", "));
+				}
+				authPayload.user = mapper.readValue(
 						(InputStream) verifyResponse.readEntity(InputStream.class),
-						AuthorizationPayload.class);
+						User.class);
 			} catch (IOException e) {
 				// TODO fix this
 				throw new RuntimeException("Could not get or parse GitHub Auth response.", e);
@@ -299,15 +304,9 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 				.hostnameVerifier(hostnameVerifier).build();
 	}
 	
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	private static class UserPayload {
-		public String login;
-	}
-	
-	@JsonIgnoreProperties(ignoreUnknown = true)
 	private static class AuthorizationPayload {
 		public List<String> scopes;
-		public UserPayload user;
+		public User user;
 	}
 	
 	public static class GitHubPrincipal implements Principal {
