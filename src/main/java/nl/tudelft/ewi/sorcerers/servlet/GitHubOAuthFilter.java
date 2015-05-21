@@ -234,7 +234,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 			}
 			return authPayload;
 		} else {
-			System.out.format("Received error in verify response %d", verifyResponse.getStatus());
+			System.out.format("Received error in verify response %d: %s\n", verifyResponse.getStatus(), verifyResponse.readEntity(String.class));
 			return null;
 		}
 	}
