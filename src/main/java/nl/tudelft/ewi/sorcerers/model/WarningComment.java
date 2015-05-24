@@ -23,6 +23,7 @@ public class WarningComment {
 		this.repo = repo;
 		this.commit = commit;
 		this.warningId = warningId;
+		this.date = date;
 		this.commentId = commentId;
 	}
 }
