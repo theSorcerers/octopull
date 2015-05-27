@@ -35,13 +35,13 @@ public class FooResource {
 	@Transactional
 	@RolesAllowed("user")
 	public List<Warning> retrieve(@QueryParam("fail") String fail) {
-		Warning w = new Warning("rmhartog/bugfree-octo-wookie", "ca41fa4d04525071e4522084b2744c508f1f68bd", "README.md", 1, "test message");
-		em.persist(w);
-		Warning w2 = new Warning("rmhartog/bugfree-octo-wookie", "4b1fc0be3a772e0736dd0b485e7b6b8bd50f13d8", "README.md", 3, "test message");
-		em.persist(w2);
-		if (fail != null) {
-			throw new RuntimeException("bogus");
-		}
+//		Warning w = new Warning("rmhartog/bugfree-octo-wookie", "ca41fa4d04525071e4522084b2744c508f1f68bd", "README.md", 1, "test message");
+//		em.persist(w);
+//		Warning w2 = new Warning("rmhartog/bugfree-octo-wookie", "4b1fc0be3a772e0736dd0b485e7b6b8bd50f13d8", "README.md", 3, "test message");
+//		em.persist(w2);
+//		if (fail != null) {
+//			throw new RuntimeException("bogus");
+//		}
 		return (List<Warning>) em.createQuery("SELECT w FROM Warning w").getResultList();
 	}
 	

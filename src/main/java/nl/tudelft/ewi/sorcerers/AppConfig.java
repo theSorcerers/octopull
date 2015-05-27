@@ -20,6 +20,7 @@ import nl.tudelft.ewi.sorcerers.model.WarningService;
 import nl.tudelft.ewi.sorcerers.servlet.BaseURIFilter;
 import nl.tudelft.ewi.sorcerers.servlet.CORSResponseFilter;
 import nl.tudelft.ewi.sorcerers.servlet.GitHubOAuthFilter;
+import nl.tudelft.ewi.sorcerers.servlet.GitHubResponseCookieFilter;
 import nl.tudelft.ewi.sorcerers.usecases.CreateCommentFromWarning;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForDiff;
@@ -51,6 +52,7 @@ public class AppConfig extends ResourceConfig {
 		register(JacksonJaxbJsonProvider.class);
 		register(CORSResponseFilter.class);
 		register(GitHubOAuthFilter.class);
+		register(GitHubResponseCookieFilter.class);
 		register(RolesAllowedDynamicFeature.class);
 		register(ForbiddenExceptionMapper.class);
 		
