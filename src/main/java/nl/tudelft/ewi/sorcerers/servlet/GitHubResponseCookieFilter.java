@@ -35,7 +35,16 @@ public class GitHubResponseCookieFilter implements ContainerResponseFilter {
 			String token = githubPrincipal.getToken();
 			String tag = githubPrincipal.getTag();
 			String username = githubPrincipal.getName();
-			String scopes = String.join(",", githubPrincipal.getScopes());
+			StringBuilder stringBuilder = new StringBuilder();
+			if (githubPrincipal.getScopes() != null) {
+				for (String scope : githubPrincipal.getScopes()) {
+					if (stringBuilder.length() > 0) {
+						stringBuilder.append(",");
+					}
+					stringBuilder.append(scope);
+				}
+			}
+			String scopes = stringBuilder.toString();
 			
 			String cookie = URLEncoder.encode(String.format("%s;%s;%s;%s", token, tag, username, scopes), "UTF-8");
 			
