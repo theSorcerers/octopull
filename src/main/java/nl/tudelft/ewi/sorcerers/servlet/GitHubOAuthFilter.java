@@ -34,7 +34,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
@@ -51,8 +50,6 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 
-import nl.tudelft.ewi.sorcerers.resources.TravisResource;
-
 import org.eclipse.egit.github.core.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +62,7 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 @PreMatching
 @Provider
 public class GitHubOAuthFilter implements ContainerRequestFilter {
-	private static final Logger LOGGER = LoggerFactory.getLogger(GitHubOAuthFilter.class);
+	@Inject private Logger logger;
 	
 	private String clientId;
 	private String clientSecret;
@@ -284,7 +281,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 			}
 			return authPayload;
 		} else {
-			LOGGER.error("Received error in verify response %d: %s\n", verifyResponse.getStatus(), verifyResponse.readEntity(String.class));
+			logger.error("Received error in verify response %d: %s\n", verifyResponse.getStatus(), verifyResponse.readEntity(String.class));
 			return null;
 		}
 	}
