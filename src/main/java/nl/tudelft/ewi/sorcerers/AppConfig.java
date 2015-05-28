@@ -4,6 +4,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.metamodel.Bindable;
 
 import nl.tudelft.ewi.sorcerers.github.CommitServiceFactory;
 import nl.tudelft.ewi.sorcerers.github.GitHubClientFactory;
@@ -29,8 +30,10 @@ import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.PullRequestService;
 import org.glassfish.hk2.api.Immediate;
+import org.glassfish.hk2.api.InjectionResolver;
 import org.glassfish.hk2.api.InterceptionService;
 import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.api.TypeLiteral;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
@@ -43,7 +46,7 @@ public class AppConfig extends ResourceConfig {
 	@Inject
 	public AppConfig(ServiceLocator serviceLocator) {
 		packages("nl.tudelft.ewi.sorcerers.resources");
-
+		
 		System.out.println("Registering injectables...");
 		
 		ServiceLocatorUtilities.enableImmediateScope(serviceLocator);
@@ -71,6 +74,13 @@ public class AppConfig extends ResourceConfig {
 			throw new IllegalArgumentException("GITHUB_CLIENT_SECRET is missing.");
 		}
 		
+		register(new AbstractBinder() {
+			@Override
+			protected void configure() {	
+				bind(LoggerResolver.class).to(new TypeLiteral<InjectionResolver<Inject>>() {}).in(Singleton.class).ranked(100);;
+			}
+		});
+				
 		register(new AbstractBinder() {
 			@Override
 			protected void configure() {	
