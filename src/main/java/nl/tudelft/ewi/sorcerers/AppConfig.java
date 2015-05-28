@@ -43,7 +43,7 @@ public class AppConfig extends ResourceConfig {
 	@Inject
 	public AppConfig(ServiceLocator serviceLocator) {
 		packages("nl.tudelft.ewi.sorcerers.resources");
-
+		
 		System.out.println("Registering injectables...");
 		
 		ServiceLocatorUtilities.enableImmediateScope(serviceLocator);

@@ -29,6 +29,8 @@ import nl.tudelft.ewi.sorcerers.model.WarningService;
 import nl.tudelft.ewi.sorcerers.util.ReadUntilReader;
 
 import org.glassfish.hk2.api.IterableProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -39,6 +41,8 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 @Path("/travis")
 public class TravisResource {
+	private static final Logger LOGGER = LoggerFactory.getLogger(TravisResource.class);
+	
 	private static final Pattern RESULT_PATTERN = Pattern.compile("^== ([_A-Z]+)_RESULT ==$");
 	private static final Pattern COMMIT_PATTERN = Pattern.compile("^OCTOPULL_SHA=([0-9a-z]+)$");
 	private TravisService travisService;
@@ -83,10 +87,7 @@ public class TravisResource {
 				}
 			}
 			
-			System.out.println(travisPayload.commit);
-			System.out.println("Looping the matrix");
 			for (TravisJobPayload job : travisPayload.matrix) {
-				System.out.println(job.id);
 				InputStream log = null;
 				try {
 					log = this.travisService.getLogFromJobId(host, job.id);
@@ -94,8 +95,7 @@ public class TravisResource {
 						parseLog(travisPayload, log);
 					}
 				} catch (Exception e) {
-					System.out.println("failed to get log");
-					e.printStackTrace();
+					LOGGER.error("Unable to retrieve log from Travis", e);
 				} finally {
 					if (log != null) {
 						log.close();
@@ -138,7 +138,6 @@ public class TravisResource {
 						Reader r = new ReadUntilReader(reader, ("== END_" + tool + "_RESULT ==").toCharArray());
 						LogParser parser = logParsers.named(tool.toLowerCase()).get();
 						if (parser != null) {
-							System.out.println("parser: " + tool);
 							for (Warning warning : parser.parse(r)) {
 								String path = warning.getPath().replaceAll("^/home/travis/build/" + repo + "/", "");
 								this.warningService.addWarningIfNew(repo, commit, path, warning.getLine(), warning.getMessage());

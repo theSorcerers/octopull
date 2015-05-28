@@ -51,7 +51,11 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 
+import nl.tudelft.ewi.sorcerers.resources.TravisResource;
+
 import org.eclipse.egit.github.core.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,6 +65,8 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 @PreMatching
 @Provider
 public class GitHubOAuthFilter implements ContainerRequestFilter {
+	private static final Logger LOGGER = LoggerFactory.getLogger(GitHubOAuthFilter.class);
+	
 	private String clientId;
 	private String clientSecret;
 
@@ -132,8 +138,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 			String returnAddress, String token) {
 		String baseUri = requestContext.getUriInfo().getBaseUriBuilder()
 				.scheme(null).host(null).port(-1).toString();
-		
-		System.out.println(baseUri);
+
 		NewCookie tokenCookie = new NewCookie("github_token",
 				token, baseUri, null, Cookie.DEFAULT_VERSION, null,
 				NewCookie.DEFAULT_MAX_AGE, null, false, true);
@@ -184,7 +189,6 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 			}
 		} else if (getGithubToken(requestContext) != null) {
 			String token = getGithubToken(requestContext);
-			System.out.format("Got github token %s\n", token);
 			AuthorizationPayload verifyToken = verifyToken(token);
 
 			if (verifyToken != null) {
@@ -217,7 +221,6 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 	private AuthorizationPayload verifyToken(String token) {
 		Client client = createClient();
 		
-		System.out.println(token);
 		String[] tokenParts = token.split(";");
 		
 		String ghtoken = tokenParts[0];
@@ -240,7 +243,6 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 		
 		Response verifyResponse = verifyToken.invoke();
 		if (verifyResponse.getStatus() == 304) {
-			System.out.println("CACHE HIT");
 			AuthorizationPayload authPayload = new AuthorizationPayload();
 			authPayload.token = ghtoken;
 			authPayload.username = username;
@@ -248,7 +250,6 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 			authPayload.scopes = scopes;
 			return authPayload;
 		} else if (verifyResponse.getStatus() == 200) {
-			System.out.println("CACHE MISS");
 			// TODO temporary
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -283,7 +284,7 @@ public class GitHubOAuthFilter implements ContainerRequestFilter {
 			}
 			return authPayload;
 		} else {
-			System.out.format("Received error in verify response %d: %s\n", verifyResponse.getStatus(), verifyResponse.readEntity(String.class));
+			LOGGER.error("Received error in verify response %d: %s\n", verifyResponse.getStatus(), verifyResponse.readEntity(String.class));
 			return null;
 		}
 	}

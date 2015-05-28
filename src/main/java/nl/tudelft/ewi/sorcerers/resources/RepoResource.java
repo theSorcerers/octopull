@@ -40,7 +40,6 @@ public class RepoResource {
 	@Path("pulls/{pull: [0-9]+}/diff/{base: [0-9a-z]+}/{head: [0-9a-z]+}")
 	@Produces("application/vnd.octopull.repository+json")
 	public RepositoryDTO getDiff(@PathParam("pull") Integer pullRequest, @PathParam("base") String base, @PathParam("head") String head) throws IOException {
-		System.out.println(String.format("%s: %s / %s", repo, base, head));
 		Diff diff = gwfd.execute(this.repo, base, head);
 		
 		List<WarningDTO> transferWarnings = new ArrayList<WarningDTO>();
