@@ -70,7 +70,7 @@ public class PMDLogParser implements LogParser {
 			for (PMDFile file : report.files) {
 				String path = file.name;
 				for (PMDViolation error : file.violations) {
-					warnings.add(new Warning(null, null, path, error.beginline, error.message));
+					warnings.add(new Warning(null, null, path, error.beginline, "pmd", error.message));
 				}
 			}
 		} catch (JsonParseException e) {

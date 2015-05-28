@@ -21,16 +21,18 @@ public class Warning {
 	
 	@Basic private String path;
 	@Basic private int line;
+	@Basic private String tool;
 	@Basic private String message;
 	
 	@SuppressWarnings("unused")
 	private Warning() {}
 	
-	public Warning(String repo, String commit, String path, int line, String message) {
+	public Warning(String repo, String commit, String path, int line, String tool, String message) {
 		this.repo = repo;
 		this.commit = commit;
 		this.path = path;
 		this.line = line;
+		this.tool = tool;
 		this.message = message;
 	}
 	
@@ -54,6 +56,10 @@ public class Warning {
 		return line;
 	}
 	
+	public String getTool() {
+		return tool;
+	}
+
 	public String getMessage() {
 		return message;
 	}
