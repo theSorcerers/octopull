@@ -35,7 +35,7 @@ public class JPAWarningRepository implements WarningRepository {
 	
 	@Override
 	public Warning find(String repo, String commit, String path, int line,
-			String message) {
+			String tool, String message) {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Warning> cq = cb.createQuery(Warning.class);
 		
@@ -45,6 +45,7 @@ public class JPAWarningRepository implements WarningRepository {
 					cb.equal(warning.get("commit"), commit),
 					cb.equal(warning.get("path"), path),
 					cb.equal(warning.get("line"), line),
+					cb.equal(warning.get("tool"), tool),
 					cb.equal(warning.get("message"), message)
 				)
 		);

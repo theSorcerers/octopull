@@ -44,7 +44,7 @@ public class RepoResource {
 		
 		List<WarningDTO> transferWarnings = new ArrayList<WarningDTO>();
 		for (Warning w : diff.getWarnings()) {
-			WarningDTO wdto = new WarningDTO(w.getId(), w.getPath(), w.getLine(), w.getCommit(), w.getMessage());
+			WarningDTO wdto = new WarningDTO(w.getId(), w.getPath(), w.getLine(), w.getCommit(), w.getTool(), w.getMessage());
 			transferWarnings.add(wdto);
 		}
 		
@@ -96,13 +96,16 @@ public class RepoResource {
 		@JsonProperty
 		private String commit;
 		@JsonProperty
+		private String tool;
+		@JsonProperty
 		private String message;
 		
-		public WarningDTO(int warningId, String path, int line, String commit, String message) {
+		public WarningDTO(int warningId, String path, int line, String commit, String tool, String message) {
 			this.id = warningId;
 			this.path = path;
 			this.line = line;
 			this.commit = commit;
+			this.tool = tool;
 			this.message = message;
 		}
 	}

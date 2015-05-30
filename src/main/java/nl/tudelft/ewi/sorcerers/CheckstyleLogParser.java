@@ -70,7 +70,7 @@ public class CheckstyleLogParser implements LogParser {
 				String path = file.name;
 				if (file.errors != null) {
 					for (CheckStyleError error : file.errors) {
-						warnings.add(new Warning(null, null, path, error.line, error.message));
+						warnings.add(new Warning(null, null, path, error.line, "checkstyle", error.message));
 					}
 				}
 			}

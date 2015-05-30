@@ -141,7 +141,7 @@ public class TravisResource {
 						if (parser != null) {
 							for (Warning warning : parser.parse(r)) {
 								String path = warning.getPath().replaceAll("^/home/travis/build/" + repo + "/", "");
-								this.warningService.addWarningIfNew(repo, commit, path, warning.getLine(), warning.getMessage());
+								this.warningService.addWarningIfNew(repo, commit, path, warning.getLine(), warning.getTool(), warning.getMessage());
 							}
 						}
 						r.close();
