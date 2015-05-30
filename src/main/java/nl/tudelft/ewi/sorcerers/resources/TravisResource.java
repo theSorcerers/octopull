@@ -95,7 +95,8 @@ public class TravisResource {
 						parseLog(travisPayload, log);
 					}
 				} catch (Exception e) {
-					LOGGER.error("Unable to retrieve log from Travis", e);
+					LOGGER.error(String.format("Unable to retrieve log from Travis for job %s of repo %s/%s",
+							job.id, travisPayload.repository.owner_name, travisPayload.repository.name), e);
 				} finally {
 					if (log != null) {
 						log.close();
