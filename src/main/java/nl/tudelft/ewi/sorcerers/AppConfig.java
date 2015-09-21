@@ -142,6 +142,7 @@ public class AppConfig extends ResourceConfig {
 			protected void configure() {
 				bind(CheckstyleLogParser.class).named("checkstyle").to(LogParser.class);
 				bind(PMDLogParser.class).named("pmd").to(LogParser.class);
+				bind(FindBugsLogParser.class).named("findbugs").to(LogParser.class);
 			}
 		});
 	}
