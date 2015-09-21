@@ -6,10 +6,12 @@ import java.io.Reader;
 import java.util.Arrays;
 
 public class ReadUntilReader extends FilterReader {
+	private boolean open;
 	private char[] delimiter;
 
 	public ReadUntilReader(Reader inputReader, char[] delimiter) {
 		super(inputReader);
+		this.open = true;
 		this.delimiter = delimiter;
 	}
 
@@ -33,6 +35,8 @@ public class ReadUntilReader extends FilterReader {
 
 	@Override
 	public int read() throws IOException {
+		if (!open) return -1;
+		
 		super.mark(delimiter.length);
 		try {
 			char[] arr = new char[delimiter.length];
@@ -43,7 +47,9 @@ public class ReadUntilReader extends FilterReader {
 		} finally {
 			super.reset();
 		}
-		return super.read();
+		int read = super.read();
+		System.out.print((char) read);
+		return read;
 	}
 	
 	@Override
@@ -76,11 +82,15 @@ public class ReadUntilReader extends FilterReader {
 	
 	@Override
 	public void close() throws IOException {
-		int read;
-		do {
-			read = this.read();
-		} while (read != -1);
-		
-		this.skip(delimiter.length);
+		if (open) {
+			int read;
+			do {
+				read = this.read();
+			} while (read != -1);
+			
+			this.skip(delimiter.length);
+			
+			open = false;
+		}
 	}
 }

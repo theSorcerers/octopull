@@ -116,10 +116,10 @@ public class TravisResource {
 		return Response.ok().build();
 	}
 
-	private void parseLog(TravisPayload travisPayload, InputStream log) {
+	public void parseLog(TravisPayload travisPayload, InputStream log) {
 		String repo = String.format("%s/%s", travisPayload.repository.owner_name, travisPayload.repository.name);
 		String commit = travisPayload.commit;
-		
+
 		BufferedInputStream logStream = new BufferedInputStream(log);
 		BufferedReader reader = null;
 		try {
@@ -136,6 +136,7 @@ public class TravisResource {
 					Matcher resultMatcher = resultPattern.matcher(line);
 					if (resultMatcher.matches()) {
 						String tool = resultMatcher.group(1);
+						LOGGER.debug("Found section for tool '"+ tool + "'");
 						Reader r = new ReadUntilReader(reader, ("== END_" + tool + "_RESULT ==").toCharArray());
 						LogParser parser = logParsers.named(tool.toLowerCase()).get();
 						if (parser != null) {
@@ -164,18 +165,18 @@ public class TravisResource {
 	}
 	
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	private static class TravisRepository {
+	static class TravisRepository {
 		public String name;
 		public String owner_name;
 	}
 	
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	private static class TravisJobPayload {
+	static class TravisJobPayload {
 		public String id;
 	}
 	
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	private static class TravisPayload {
+	static class TravisPayload {
 		public String commit;
 		public String build_url;
 		public TravisRepository repository;
