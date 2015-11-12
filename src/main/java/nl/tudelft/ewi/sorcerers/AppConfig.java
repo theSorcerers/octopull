@@ -25,6 +25,7 @@ import nl.tudelft.ewi.sorcerers.servlet.GitHubResponseCookieFilter;
 import nl.tudelft.ewi.sorcerers.usecases.CreateCommentFromWarning;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForDiff;
+import nl.tudelft.ewi.sorcerers.usecases.StorePageView;
 
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CommitService;
@@ -125,6 +126,7 @@ public class AppConfig extends ResourceConfig {
 				bindAsContract(GetWarningsForCommit.class);
 				bindAsContract(GetWarningsForDiff.class);
 				bindAsContract(CreateCommentFromWarning.class);
+				bindAsContract(StorePageView.class);
 			}
 		});
 		

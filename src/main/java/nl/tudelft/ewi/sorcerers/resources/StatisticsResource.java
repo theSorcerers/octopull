@@ -1,7 +1,6 @@
 package nl.tudelft.ewi.sorcerers.resources;
 
 import java.security.Principal;
-import java.util.Date;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -14,19 +13,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
-import nl.tudelft.ewi.sorcerers.model.PageView;
-import nl.tudelft.ewi.sorcerers.model.PageViewRepository;
+import nl.tudelft.ewi.sorcerers.usecases.StorePageView;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Path("statistics")
 public class StatisticsResource {
-	private PageViewRepository pageViewRepository;
+	private StorePageView storePageView;
 
 	@Inject
-	public StatisticsResource(PageViewRepository pageViewRepository) {
-		this.pageViewRepository = pageViewRepository;
+	public StatisticsResource(StorePageView storePageView) {
+		this.storePageView = storePageView;
 	}
 	
 	@POST
@@ -38,10 +36,10 @@ public class StatisticsResource {
 		if (userPrincipal != null) {
 			user = userPrincipal.getName();
 		}
-		this.pageViewRepository.add(new PageView(pvd.getHref(), user, pvd.screen, new Date()));
+		storePageView.execute(user, pvd.screen, pvd.getHref());
 		return Response.ok().build();
 	}
-	
+
 	@JsonSerialize
 	private static class PageViewDTO {
 		@JsonProperty
