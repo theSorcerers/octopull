@@ -1,12 +1,12 @@
 package nl.tudelft.ewi.sorcerers.usecases;
 
 import java.io.IOException;
+import java.net.URI;
 
 import javax.inject.Inject;
 
-import org.eclipse.egit.github.core.CommitComment;
-
 import nl.tudelft.ewi.sorcerers.model.CommentService;
+import nl.tudelft.ewi.sorcerers.resources.CommentResource;
 
 public class CreateCommentFromWarning {
 	private CommentService commentService;
@@ -16,7 +16,7 @@ public class CreateCommentFromWarning {
 		this.commentService = commentService;
 	}
 	
-	public CommitComment execute(String repo, String commit, Integer pullRequest, Integer warningId, Integer position) throws IOException {
+	public URI execute(CommentResource commentResource, String repo, String commit, Integer pullRequest, Integer warningId, Integer position) throws IOException {
 		return this.commentService.createCommentFromWarning(repo, commit, pullRequest, warningId, position);
 	}
 }
