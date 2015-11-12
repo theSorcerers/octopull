@@ -6,23 +6,20 @@ import java.util.Date;
 
 import javax.inject.Inject;
 
-import nl.tudelft.ewi.sorcerers.github.PatchedGitHubClient.PatchedCommitComment;
-
-import org.eclipse.egit.github.core.CommitComment;
-import org.eclipse.egit.github.core.RepositoryId;
-import org.eclipse.egit.github.core.service.PullRequestService;
+import nl.tudelft.ewi.sorcerers.github.GitHubCommitComment;
+import nl.tudelft.ewi.sorcerers.github.GitHubReviewService;
 
 public class CommentService {
 	private WarningService warningService;
-	private PullRequestService pullRequestService;
+	private GitHubReviewService reviewService;
 	private WarningCommentRepository warningCommentRepository;
 
 	@Inject
 	public CommentService(WarningService warningService,
-			PullRequestService pullRequestService,
+			GitHubReviewService reviewService,
 			WarningCommentRepository warningCommentRepository) {
 		this.warningService = warningService;
-		this.pullRequestService = pullRequestService;
+		this.reviewService = reviewService;
 		this.warningCommentRepository = warningCommentRepository;
 	}
 
@@ -38,18 +35,13 @@ public class CommentService {
 		bodyBuilder.append("    ");
 		bodyBuilder.append(warning.getMessage().replaceAll("\n", "\n    "));
 		bodyBuilder.append("\n");
+		String body = bodyBuilder.toString();
 
-		CommitComment comment = new CommitComment();
-		comment.setBody(bodyBuilder.toString());
-		comment.setCommitId(commit);
-		comment.setPath(warning.getPath());
-		comment.setPosition(position);
-		PatchedCommitComment result = (PatchedCommitComment) this.pullRequestService.createComment(
-				RepositoryId.createFromId(repo), pullRequest, comment);
-
+		GitHubCommitComment result = this.reviewService.createCommitComment(repo, commit,
+				pullRequest, position, warning, body);
+		
 		this.warningCommentRepository.add(new WarningComment(warning.getRepo(), warning.getCommit(), warning.getId(), new Date(), result.getId()));
 		
-		URI commentUri = URI.create(result.getHtmlUrl());
-		return commentUri;
+		return URI.create(result.getHtmlUrl());
 	}
 }

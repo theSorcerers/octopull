@@ -6,19 +6,18 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.eclipse.egit.github.core.RepositoryCommitCompare;
-import org.eclipse.egit.github.core.RepositoryId;
-import org.eclipse.egit.github.core.service.CommitService;
+import nl.tudelft.ewi.sorcerers.github.GitHubCompareService;
+
 import org.hibernate.exception.ConstraintViolationException;
 
 public class WarningService {
 	private WarningRepository warningRepository;
-	private CommitService commitService;
+	private GitHubCompareService compareService;
 
 	@Inject
-	public WarningService(WarningRepository warningRepository, CommitService commitService) {
+	public WarningService(WarningRepository warningRepository, GitHubCompareService compareService) {
 		this.warningRepository = warningRepository;
-		this.commitService = commitService;
+		this.compareService = compareService;
 	}
 
 	public List<Warning> getWarningsForCommit(String repo, String commit) {
@@ -49,8 +48,7 @@ public class WarningService {
 
 	public Diff getWarningsForDiff(String repo, String base,
 			String head) throws IOException {
-		RepositoryCommitCompare compare = commitService.compare(RepositoryId.createFromId(repo), base, head);
-		String baseCommit = compare.getBaseCommit().getSha();
+		String baseCommit = compareService.getMergeBase(repo, base, head);
 		
 		ArrayList<Warning> warnings = new ArrayList<Warning>();
 		warnings.addAll(getWarningsForCommit(repo, baseCommit));
