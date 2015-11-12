@@ -5,13 +5,15 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import nl.tudelft.ewi.sorcerers.github.PatchedGitHubClient.PatchedCommitComment;
+import nl.tudelft.ewi.sorcerers.model.ReviewComment;
+import nl.tudelft.ewi.sorcerers.model.ReviewService;
 import nl.tudelft.ewi.sorcerers.model.Warning;
 
 import org.eclipse.egit.github.core.CommitComment;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.service.PullRequestService;
 
-public class GitHubReviewService {
+public class GitHubReviewService implements ReviewService {
 	private PullRequestService pullRequestService;
 	
 	@Inject
@@ -19,7 +21,8 @@ public class GitHubReviewService {
 		this.pullRequestService = pullRequestService;
 	}
 	
-	public GitHubCommitComment createCommitComment(String repo, String commit, Integer pullRequest, Integer position, Warning warning, String body)
+	@Override
+	public ReviewComment createCommitComment(String repo, String commit, Integer pullRequest, Integer position, Warning warning, String body)
 			throws IOException {
 		CommitComment comment = new CommitComment();
 		comment.setBody(body);
@@ -28,7 +31,7 @@ public class GitHubReviewService {
 		comment.setPosition(position);
 		PatchedCommitComment presult = (PatchedCommitComment) this.pullRequestService.createComment(
 				RepositoryId.createFromId(repo), pullRequest, comment);
-		GitHubCommitComment result = new GitHubCommitComment(presult.getId(), presult.getHtmlUrl());
+		ReviewComment result = new ReviewComment(presult.getId(), presult.getHtmlUrl());
 		return result;
 	}
 

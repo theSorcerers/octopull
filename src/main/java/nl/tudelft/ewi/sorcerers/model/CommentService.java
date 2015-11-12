@@ -6,17 +6,14 @@ import java.util.Date;
 
 import javax.inject.Inject;
 
-import nl.tudelft.ewi.sorcerers.github.GitHubCommitComment;
-import nl.tudelft.ewi.sorcerers.github.GitHubReviewService;
-
 public class CommentService {
 	private WarningService warningService;
-	private GitHubReviewService reviewService;
+	private ReviewService reviewService;
 	private WarningCommentRepository warningCommentRepository;
 
 	@Inject
 	public CommentService(WarningService warningService,
-			GitHubReviewService reviewService,
+			ReviewService reviewService,
 			WarningCommentRepository warningCommentRepository) {
 		this.warningService = warningService;
 		this.reviewService = reviewService;
@@ -37,7 +34,7 @@ public class CommentService {
 		bodyBuilder.append("\n");
 		String body = bodyBuilder.toString();
 
-		GitHubCommitComment result = this.reviewService.createCommitComment(repo, commit,
+		ReviewComment result = this.reviewService.createCommitComment(repo, commit,
 				pullRequest, position, warning, body);
 		
 		this.warningCommentRepository.add(new WarningComment(warning.getRepo(), warning.getCommit(), warning.getId(), new Date(), result.getId()));

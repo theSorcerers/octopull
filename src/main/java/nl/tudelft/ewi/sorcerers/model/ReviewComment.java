@@ -1,10 +1,10 @@
-package nl.tudelft.ewi.sorcerers.github;
+package nl.tudelft.ewi.sorcerers.model;
 
-public class GitHubCommitComment {
+public class ReviewComment {
 	private long id;
 	private String htmlUrl;
 
-	public GitHubCommitComment(long id, String htmlUrl) {
+	public ReviewComment(long id, String htmlUrl) {
 		this.id = id;
 		this.htmlUrl = htmlUrl;
 	}

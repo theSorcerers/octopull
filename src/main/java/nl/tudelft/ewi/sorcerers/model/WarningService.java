@@ -6,16 +6,14 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import nl.tudelft.ewi.sorcerers.github.GitHubCompareService;
-
 import org.hibernate.exception.ConstraintViolationException;
 
 public class WarningService {
 	private WarningRepository warningRepository;
-	private GitHubCompareService compareService;
+	private CompareService compareService;
 
 	@Inject
-	public WarningService(WarningRepository warningRepository, GitHubCompareService compareService) {
+	public WarningService(WarningRepository warningRepository, CompareService compareService) {
 		this.warningRepository = warningRepository;
 		this.compareService = compareService;
 	}
