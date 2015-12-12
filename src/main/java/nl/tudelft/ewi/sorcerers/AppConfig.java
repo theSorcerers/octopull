@@ -4,17 +4,20 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.metamodel.Bindable;
 
 import nl.tudelft.ewi.sorcerers.github.CommitServiceFactory;
 import nl.tudelft.ewi.sorcerers.github.GitHubClientFactory;
+import nl.tudelft.ewi.sorcerers.github.GitHubCompareService;
+import nl.tudelft.ewi.sorcerers.github.GitHubReviewService;
 import nl.tudelft.ewi.sorcerers.github.LineMapService;
 import nl.tudelft.ewi.sorcerers.github.PullRequestServiceFactory;
 import nl.tudelft.ewi.sorcerers.infrastructure.JPAPageViewRepository;
 import nl.tudelft.ewi.sorcerers.infrastructure.JPAWarningCommentRepository;
 import nl.tudelft.ewi.sorcerers.infrastructure.JPAWarningRepository;
 import nl.tudelft.ewi.sorcerers.model.CommentService;
+import nl.tudelft.ewi.sorcerers.model.CompareService;
 import nl.tudelft.ewi.sorcerers.model.PageViewRepository;
+import nl.tudelft.ewi.sorcerers.model.ReviewService;
 import nl.tudelft.ewi.sorcerers.model.WarningCommentRepository;
 import nl.tudelft.ewi.sorcerers.model.WarningRepository;
 import nl.tudelft.ewi.sorcerers.model.WarningService;
@@ -25,6 +28,7 @@ import nl.tudelft.ewi.sorcerers.servlet.GitHubResponseCookieFilter;
 import nl.tudelft.ewi.sorcerers.usecases.CreateCommentFromWarning;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForCommit;
 import nl.tudelft.ewi.sorcerers.usecases.GetWarningsForDiff;
+import nl.tudelft.ewi.sorcerers.usecases.StorePageView;
 
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CommitService;
@@ -39,6 +43,9 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
@@ -116,6 +123,9 @@ public class AppConfig extends ResourceConfig {
 				bindFactory(GitHubClientFactory.class).to(GitHubClient.class).in(RequestScoped.class);
 				bindFactory(PullRequestServiceFactory.class).to(PullRequestService.class).in(RequestScoped.class);
 				bindFactory(CommitServiceFactory.class).to(CommitService.class).in(RequestScoped.class);
+				
+				bind(GitHubCompareService.class).to(CompareService.class).in(Singleton.class);
+				bind(GitHubReviewService.class).to(ReviewService.class).in(Singleton.class);
 			}
 		});
 		
@@ -125,6 +135,7 @@ public class AppConfig extends ResourceConfig {
 				bindAsContract(GetWarningsForCommit.class);
 				bindAsContract(GetWarningsForDiff.class);
 				bindAsContract(CreateCommentFromWarning.class);
+				bindAsContract(StorePageView.class);
 			}
 		});
 		
@@ -142,6 +153,7 @@ public class AppConfig extends ResourceConfig {
 			protected void configure() {
 				bind(CheckstyleLogParser.class).named("checkstyle").to(LogParser.class);
 				bind(PMDLogParser.class).named("pmd").to(LogParser.class);
+				bind(FindBugsLogParser.class).named("findbugs").to(LogParser.class);
 			}
 		});
 	}

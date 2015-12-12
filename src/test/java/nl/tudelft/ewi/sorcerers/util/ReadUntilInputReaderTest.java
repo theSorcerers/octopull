@@ -92,4 +92,19 @@ public class ReadUntilInputReaderTest {
 			reader.close();
 		}
 	}
+	
+	@Test
+	public void should_skip_leftovers_once_at_close() throws IOException {
+		String input = "beforeXXXafter\r\n";
+		Reader inputReader = inputReaderFromString(input);
+		ReadUntilReader ruReader = new ReadUntilReader(inputReader, "XXX".toCharArray());
+		BufferedReader reader = new BufferedReader(inputReader);
+		try {
+			ruReader.close();
+			ruReader.close();
+			assertEquals("after", reader.readLine());
+		} finally {
+			reader.close();
+		}
+	}
 }
