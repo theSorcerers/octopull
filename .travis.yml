@@ -2,6 +2,7 @@ language: java
 notifications:
   webhooks:
     - http://octopull.rmhartog.me/api/travis/webhook
+    - http://octopull.rmhartog.me/staging/travis/webhook
 before_install:
   - '[ "$BUILD_PR_BRANCH" = "true" ] && { [ "$TRAVIS_PULL_REQUEST" != "false" ] || exit 1; } && git checkout HEAD^2 && echo "OCTOPULL_SHA=$(git rev-parse HEAD)"; true'
 env:
